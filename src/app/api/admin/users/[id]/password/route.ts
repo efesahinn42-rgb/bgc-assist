@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 // PUT - Şifre değiştir
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -18,6 +18,7 @@ export async function PUT(
       );
     }
 
+    const { id } = await params;
     const body = await request.json();
     const { currentPassword, newPassword } = body;
 
@@ -38,7 +39,7 @@ export async function PUT(
 
     // Get user
     const user = await prisma.admin.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!user) {
@@ -50,7 +51,7 @@ export async function PUT(
 
     // If changing own password, require current password
     // If SUPER_ADMIN changing others, no current password needed
-    if (session.user.id === params.id) {
+    if (session.user.id === id) {
       if (!currentPassword) {
         return NextResponse.json(
           { error: "Mevcut şifre gerekli" },
@@ -80,7 +81,7 @@ export async function PUT(
 
     // Update password
     await prisma.admin.update({
-      where: { id: params.id },
+      where: { id },
       data: { password: hashedPassword },
     });
 

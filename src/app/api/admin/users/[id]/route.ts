@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 // GET - Tek bir kullanıcıyı getir
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -17,8 +17,10 @@ export async function GET(
       );
     }
 
+    const { id } = await params;
+
     // Only SUPER_ADMIN can view other users
-    if (session.user.role !== "SUPER_ADMIN" && session.user.id !== params.id) {
+    if (session.user.role !== "SUPER_ADMIN" && session.user.id !== id) {
       return NextResponse.json(
         { error: "Bu işlem için SUPER_ADMIN yetkisi gerekli" },
         { status: 403 }
@@ -26,7 +28,7 @@ export async function GET(
     }
 
     const user = await prisma.admin.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         email: true,
@@ -59,7 +61,7 @@ export async function GET(
 // PUT - Kullanıcıyı güncelle
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -71,8 +73,10 @@ export async function PUT(
       );
     }
 
+    const { id } = await params;
+
     // Only SUPER_ADMIN can update other users
-    if (session.user.role !== "SUPER_ADMIN" && session.user.id !== params.id) {
+    if (session.user.role !== "SUPER_ADMIN" && session.user.id !== id) {
       return NextResponse.json(
         { error: "Bu işlem için SUPER_ADMIN yetkisi gerekli" },
         { status: 403 }
@@ -84,7 +88,7 @@ export async function PUT(
 
     // Check if user exists
     const existingUser = await prisma.admin.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingUser) {
@@ -118,7 +122,7 @@ export async function PUT(
     }
 
     const updatedUser = await prisma.admin.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       select: {
         id: true,
@@ -145,7 +149,7 @@ export async function PUT(
 // DELETE - Kullanıcıyı sil (SUPER_ADMIN only, cannot delete self)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -157,6 +161,8 @@ export async function DELETE(
       );
     }
 
+    const { id } = await params;
+
     // Only SUPER_ADMIN can delete users
     if (session.user.role !== "SUPER_ADMIN") {
       return NextResponse.json(
@@ -166,7 +172,7 @@ export async function DELETE(
     }
 
     // Cannot delete self
-    if (session.user.id === params.id) {
+    if (session.user.id === id) {
       return NextResponse.json(
         { error: "Kendi hesabınızı silemezsiniz" },
         { status: 400 }
@@ -175,7 +181,7 @@ export async function DELETE(
 
     // Check if user exists
     const user = await prisma.admin.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!user) {
@@ -186,7 +192,7 @@ export async function DELETE(
     }
 
     await prisma.admin.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Kullanıcı başarıyla silindi" });
