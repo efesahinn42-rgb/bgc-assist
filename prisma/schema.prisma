@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ ADMIN & AUTH ============
+
+model Admin {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          Role      @default(ADMIN)
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  logs          AuditLog[]
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+}
+
+// ============ PACKAGES ============
+
+model Package {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  price        Int
+  period       String
+  description  String
+  icon         String   // icon name: "Star", "Zap", "Crown" etc.
+  popular      Boolean  @default(false)
+  color        String
+  features     Json     // ["feature1", "feature2"]
+  notIncluded  Json     // ["not1", "not2"]
+  order        Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  applications Application[]
+}
+
+// ============ SERVICES ============
+
+model Service {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  description      String
+  icon             String
+  color            String
+  modalImage       String?
+  modalDescription String?  @db.Text
+  interventionTime String?
+  coverageArea     String?
+  featuresList     Json     // ["feature1", "feature2"]
+  order            Int      @default(0)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// ============ APPLICATIONS (Başvurular) ============
+
+model Application {
+  id           String            @id @default(cuid())
+  
+  // Paket Bilgileri
+  packageId    String?
+  package      Package?          @relation(fields: [packageId], references: [id])
+  packageName  String            // Paket adı (statik veriden)
+  packagePrice Int?              // Paket fiyatı
+  
+  // Kişisel Bilgiler
+  fullName     String
+  tcNo         String
+  email        String
+  phone        String
+  
+  // Adres Bilgileri
+  city         String
+  district     String
+  address      String?           @db.Text
+  
+  // Araç Bilgileri
+  plate        String
+  brand        String
+  model        String?
+  year         String?
+  
+  // Durum
+  status       ApplicationStatus @default(PENDING)
+  notes        String?           @db.Text
+  assignedTo   String?
+  
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+enum ApplicationStatus {
+  PENDING      // Beklemede
+  CONTACTED    // İletişime Geçildi
+  PROCESSING   // İşleniyor
+  APPROVED     // Onaylandı
+  REJECTED     // Reddedildi
+  COMPLETED    // Tamamlandı
+}
+
+// ============ SITE SETTINGS ============
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  type      String   @default("text") // text, number, boolean, json
+  group     String   @default("general")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============ AUDIT LOG ============
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  admin      Admin    @relation(fields: [adminId], references: [id])
+  action     String   // CREATE, UPDATE, DELETE
+  entity     String   // Package, Service, etc.
+  entityId   String
+  oldData    Json?
+  newData    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+}
+
+// ============ SLIDER ITEMS ============
+
+model SliderItem {
+  id          String   @id @default(cuid())
+  category    String
+  title       String
+  description String   @db.Text
+  image       String
+  color       String
+  stats       Json     // [{ icon, value, label }]
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
