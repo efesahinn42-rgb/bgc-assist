@@ -270,11 +270,6 @@ export async function sendApplicationEmail(
     });
 
     const { data, error } = await resend.emails.send(emailPayload);
-      from: "BGCAssist <onboarding@resend.dev>", // Test için, domain verify edildikten sonra değiştirilecek
-      to: [companyEmail],
-      subject: `Yeni Başvuru: ${applicationData.fullName} - ${applicationData.packageName}`,
-      html: emailHtml,
-    });
 
     if (error) {
       console.error("❌ Resend error:", error);
