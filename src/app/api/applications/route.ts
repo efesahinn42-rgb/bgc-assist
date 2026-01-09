@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendApplicationEmail } from "@/lib/email";
 
 // GET - Tüm başvuruları getir (admin only)
 export async function GET(request: NextRequest) {
@@ -114,6 +115,49 @@ export async function POST(request: NextRequest) {
         status: "PENDING",
       },
     });
+
+    // Email gönder (async, hata olsa bile başvuru kaydedilir)
+    try {
+      // Test için environment variable, yoksa site settings'ten email adresini al
+      const testEmail = process.env.TEST_EMAIL;
+      let companyEmail: string;
+      
+      if (testEmail) {
+        // Test modu: Environment variable'dan al
+        companyEmail = testEmail;
+        console.log("🧪 Test modu: Email gönderilecek adres:", companyEmail);
+      } else {
+        // Production: Site settings'ten al
+        const settings = await prisma.siteSetting.findUnique({
+          where: { key: "email" },
+        });
+        companyEmail = settings?.value || "info@bgcassist.com";
+        console.log("📧 Production modu: Email gönderilecek adres:", companyEmail);
+      }
+      
+      // Email gönder
+      await sendApplicationEmail(
+        {
+          fullName: newApplication.fullName,
+          tcNo: newApplication.tcNo,
+          email: newApplication.email,
+          phone: newApplication.phone,
+          city: newApplication.city,
+          district: newApplication.district,
+          address: newApplication.address || undefined,
+          plate: newApplication.plate,
+          brand: newApplication.brand,
+          model: newApplication.model || undefined,
+          year: newApplication.year || undefined,
+          packageName: newApplication.packageName,
+          packagePrice: newApplication.packagePrice || undefined,
+        },
+        companyEmail
+      );
+    } catch (emailError) {
+      // Email gönderme hatası başvuruyu engellemez
+      console.error("⚠️ Email gönderme hatası (başvuru kaydedildi):", emailError);
+    }
 
     return NextResponse.json(newApplication, { status: 201 });
   } catch (error) {
