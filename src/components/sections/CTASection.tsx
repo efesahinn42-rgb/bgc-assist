@@ -114,16 +114,16 @@ export function CTASection() {
           >
             <Button
               size="lg"
-              className="bg-brand-red hover:bg-brand-red-dark text-brand-white text-lg px-8 py-7 font-semibold shadow-lg shadow-brand-red/30"
+              className="bg-brand-red hover:bg-brand-red-dark text-brand-white text-base sm:text-lg px-6 sm:px-8 py-6 sm:py-7 font-semibold shadow-lg shadow-brand-red/30 min-h-[44px] touch-manipulation"
               onClick={handleOpenPurchaseModal}
             >
               Online Yardım Talebi
-              <ChevronRight className="ml-2 w-5 h-5" />
+              <ChevronRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="border-2 border-brand-white bg-brand-white/10 text-brand-white hover:bg-brand-white hover:text-brand-black text-lg px-8 py-7 font-semibold backdrop-blur-sm"
+              className="border-2 border-brand-white bg-brand-white/10 text-brand-white hover:bg-brand-white hover:text-brand-black text-base sm:text-lg px-6 sm:px-8 py-6 sm:py-7 font-semibold backdrop-blur-sm min-h-[44px] touch-manipulation"
               onClick={handleOpenPurchaseModal}
             >
               Paket Satın Al

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, ChevronRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSettings } from "@/lib/settings-context";
@@ -73,13 +74,18 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Brand Column */}
           <div className="space-y-6">
-            <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center">
-                <span className="text-brand-white font-bold text-xl">B</span>
+            <Link href="/" className="inline-flex items-center">
+              <div className="relative h-12 w-auto flex items-center">
+                <Image
+                  src="/logo.png"
+                  alt="BGCAssist Logo"
+                  width={0}
+                  height={0}
+                  sizes="200px"
+                  className="h-12 w-auto object-contain"
+                  priority
+                />
               </div>
-              <span className="text-2xl font-bold">
-                GC<span className="text-brand-red">Assist</span>
-              </span>
             </Link>
             <p className="text-brand-white/60 leading-relaxed">
               Türkiye&apos;nin en güvenilir yol yardım hizmeti. 7/24 kesintisiz hizmet anlayışıyla her zaman yanınızdayız.

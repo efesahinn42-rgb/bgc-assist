@@ -126,6 +126,25 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Mobile touch optimizations */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Touch-friendly buttons and interactive elements */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+  }
+  
+  /* Prevent text selection on buttons */
+  button {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  /* Improve input rendering on mobile */
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
   }
 }
 
@@ -149,8 +168,11 @@
   background: rgba(0, 0, 0, 0.3);
   width: 50px !important;
   height: 50px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
   border-radius: 50%;
   transition: all 0.3s ease;
+  touch-action: manipulation;
 }
 
 .swiper-button-next:hover,
@@ -171,6 +193,9 @@
   background: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.05);
+  min-width: 44px !important;
+  min-height: 44px !important;
+  touch-action: manipulation;
 }
 
 .packages-swiper .swiper-button-next:hover,

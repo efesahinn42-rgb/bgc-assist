@@ -149,7 +149,7 @@ export function HeroSection() {
         }}
         navigation={true}
         loop={true}
-        className="h-[100vh] min-h-[700px]"
+        className="h-[100vh] min-h-[600px] sm:min-h-[700px]"
       >
         {slides.map((slide) => {
           const colors = colorMap[slide.color] || colorMap.blue;
@@ -195,16 +195,16 @@ export function HeroSection() {
                       <div className="flex flex-col sm:flex-row gap-4">
                         <Button 
                           size="lg" 
-                          className={`${colors.bg} hover:opacity-90 text-white text-lg px-8 py-7 font-semibold shadow-lg`}
+                          className={`${colors.bg} hover:opacity-90 text-white text-base sm:text-lg px-6 sm:px-8 py-6 sm:py-7 font-semibold shadow-lg min-h-[44px] touch-manipulation`}
                           onClick={() => handleApplyClick(slide.category)}
                         >
                           Hemen Başvur
-                          <ChevronRight className="ml-2 w-5 h-5" />
+                          <ChevronRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
                         </Button>
                         <Button 
                           size="lg" 
                           variant="outline" 
-                          className="border-2 border-brand-white bg-brand-white/10 text-brand-white hover:bg-brand-white hover:text-brand-black text-lg px-8 py-7 font-semibold backdrop-blur-md"
+                          className="border-2 border-brand-white bg-brand-white/10 text-brand-white hover:bg-brand-white hover:text-brand-black text-base sm:text-lg px-6 sm:px-8 py-6 sm:py-7 font-semibold backdrop-blur-md min-h-[44px] touch-manipulation"
                         >
                           Detaylı Bilgi
                         </Button>

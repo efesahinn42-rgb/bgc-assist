@@ -183,7 +183,7 @@ export function PurchaseModal() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden"
+          className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-lg w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {!isSuccess ? (
@@ -192,9 +192,10 @@ export function PurchaseModal() {
               <div className={`p-6 ${selectedPackage.popular ? "bg-brand-red" : selectedPackage.color} relative`}>
                 <button
                   onClick={closeModal}
-                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/40 transition-colors"
+                  className="absolute top-4 right-4 w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/40 transition-colors touch-manipulation min-h-[44px] min-w-[44px]"
+                  aria-label="Kapat"
                 >
-                  <X className="w-4 h-4 text-white" />
+                  <X className="w-5 h-5 sm:w-4 sm:h-4 text-white" />
                 </button>
                 
                 <div className="flex items-center gap-3 mb-3">
@@ -250,7 +251,7 @@ export function PurchaseModal() {
                           value={formData.fullName}
                           onChange={(e) => updateFormData("fullName", e.target.value)}
                           placeholder="Adınız Soyadınız"
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
                         />
                       </div>
                       
@@ -261,7 +262,7 @@ export function PurchaseModal() {
                           value={formData.tcNumber}
                           onChange={(e) => updateFormData("tcNumber", e.target.value.replace(/\D/g, "").slice(0, 11))}
                           placeholder="11 haneli TC Kimlik Numaranız"
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
                         />
                       </div>
                       
@@ -272,7 +273,7 @@ export function PurchaseModal() {
                           value={formData.email}
                           onChange={(e) => updateFormData("email", e.target.value)}
                           placeholder="ornek@email.com"
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
                         />
                       </div>
                     </motion.div>
@@ -299,7 +300,7 @@ export function PurchaseModal() {
                           value={formData.phone}
                           onChange={(e) => updateFormData("phone", e.target.value.replace(/\D/g, "").slice(0, 11))}
                           placeholder="05XX XXX XX XX"
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
                         />
                       </div>
                       
@@ -324,7 +325,7 @@ export function PurchaseModal() {
                             value={formData.district}
                             onChange={(e) => updateFormData("district", e.target.value)}
                             placeholder="İlçe"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
                           />
                         </div>
                       </div>
@@ -388,7 +389,7 @@ export function PurchaseModal() {
                             value={formData.model}
                             onChange={(e) => updateFormData("model", e.target.value)}
                             placeholder="Model"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
                           />
                         </div>
                       </div>
@@ -400,7 +401,7 @@ export function PurchaseModal() {
                           value={formData.year}
                           onChange={(e) => updateFormData("year", e.target.value.replace(/\D/g, "").slice(0, 4))}
                           placeholder="2024"
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
                         />
                       </div>
                     </motion.div>
@@ -484,7 +485,7 @@ export function PurchaseModal() {
                   <Button
                     variant="outline"
                     onClick={handleBack}
-                    className="flex-1 py-5 border-2"
+                    className="flex-1 py-5 border-2 min-h-[44px] touch-manipulation"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Geri
@@ -493,7 +494,7 @@ export function PurchaseModal() {
                 <Button
                   onClick={handleNext}
                   disabled={!canProceed() || isSubmitting}
-                  className={`flex-1 py-5 ${selectedPackage.popular ? "bg-brand-red hover:bg-brand-red-dark" : "bg-brand-black hover:bg-brand-black/90"} text-white disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`flex-1 py-5 min-h-[44px] touch-manipulation ${selectedPackage.popular ? "bg-brand-red hover:bg-brand-red-dark" : "bg-brand-black hover:bg-brand-black/90"} text-white disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isSubmitting ? (
                     <>
@@ -546,7 +547,7 @@ export function PurchaseModal() {
               
               <Button
                 onClick={closeModal}
-                className="w-full py-5 bg-brand-black hover:bg-brand-black/90 text-white"
+                className="w-full py-5 min-h-[44px] touch-manipulation bg-brand-black hover:bg-brand-black/90 text-white"
               >
                 Tamam
               </Button>

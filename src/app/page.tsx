@@ -1,6 +1,5 @@
 "use client";
 
-import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/sections/HeroSection";
@@ -17,7 +16,6 @@ export default function Home() {
   return (
     <SettingsProvider>
       <PurchaseModalProvider>
-        <TopBar />
         <Header />
         <main>
           <HeroSection />

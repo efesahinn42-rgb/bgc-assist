@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -212,7 +213,7 @@ export function ServicesSection() {
             const Icon = service.icon;
             return (
               <motion.div key={index} variants={cardVariants}>
-                <Card className="h-full bg-white border-0 shadow-lg shadow-stone-200/60 hover:shadow-xl hover:shadow-stone-300/60 transition-all duration-400 group hover:-translate-y-1.5 overflow-hidden rounded-2xl cursor-pointer"
+                <Card className="h-full bg-white border-0 shadow-lg shadow-stone-200/60 hover:shadow-xl hover:shadow-stone-300/60 transition-all duration-400 group hover:-translate-y-1.5 overflow-hidden rounded-2xl cursor-pointer touch-manipulation"
                   onClick={() => setSelectedService(service)}
                 >
                   <CardContent className="p-0 relative">
@@ -267,17 +268,21 @@ export function ServicesSection() {
             >
               {/* Modal Header with Image */}
               <div className="relative h-48 md:h-64 overflow-hidden">
-                <img
+                <Image
                   src={selectedService.image}
                   alt={selectedService.title}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 
                 {/* Close Button */}
                 <button
                   onClick={() => setSelectedService(null)}
-                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/40 transition-colors"
+                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/40 transition-colors min-h-[44px] min-w-[44px] touch-manipulation"
+                  aria-label="Kapat"
                 >
                   <X className="w-5 h-5 text-white" />
                 </button>

@@ -88,7 +88,8 @@ export function AdminSidebar() {
         {/* Close Button (Mobile) */}
         <button
           onClick={() => setIsMobileOpen(false)}
-          className="lg:hidden absolute top-4 right-4 p-2 text-white/60 hover:text-white"
+          className="lg:hidden absolute top-4 right-4 p-2 text-white/60 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
+          aria-label="Menüyü Kapat"
         >
           <X className="w-5 h-5" />
         </button>
@@ -119,7 +120,7 @@ export function AdminSidebar() {
                     onClick={() => setIsMobileOpen(false)}
                     prefetch={true}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-100
+                      flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-100 min-h-[44px] touch-manipulation
                       ${active 
                         ? "bg-brand-red text-white" 
                         : "text-white/70 hover:text-white hover:bg-white/5"
@@ -140,7 +141,7 @@ export function AdminSidebar() {
         <div className="p-4 border-t border-white/10">
           <button
             onClick={toggleTheme}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-all duration-150"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-all duration-150 min-h-[44px] touch-manipulation"
           >
             {theme === "dark" ? (
               <>
@@ -161,7 +162,7 @@ export function AdminSidebar() {
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-all duration-150 disabled:opacity-50"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-all duration-150 disabled:opacity-50 min-h-[44px] touch-manipulation"
           >
             {isLoggingOut ? (
               <Loader2 className="w-5 h-5 animate-spin" />

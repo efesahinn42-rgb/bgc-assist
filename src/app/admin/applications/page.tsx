@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AdminHeader } from "@/components/admin/AdminHeader";
@@ -93,6 +93,8 @@ export default function ApplicationsPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [stats, setStats] = useState<Statistics | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
+  const [isPageVisible, setIsPageVisible] = useState(true);
+  const [isPageFocused, setIsPageFocused] = useState(true);
 
   useEffect(() => {
     if (authStatus === "unauthenticated") {
@@ -110,7 +112,56 @@ export default function ApplicationsPage() {
     }
   }, [session]);
 
-  const fetchStatistics = async () => {
+  // Sayfa görünürlüğü kontrolü
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsPageVisible(!document.hidden);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  // Window focus/blur kontrolü
+  useEffect(() => {
+    const handleFocus = () => setIsPageFocused(true);
+    const handleBlur = () => setIsPageFocused(false);
+
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, []);
+
+  // Polling mekanizması - sadece sayfa görünür ve focus'tayken çalışır
+  useEffect(() => {
+    if (!session || authStatus !== "authenticated") return;
+
+    // Polling sadece sayfa görünür ve focus'tayken aktif
+    const shouldPoll = isPageVisible && isPageFocused;
+
+    if (!shouldPoll) return;
+
+    // İlk fetch'i hemen yap
+    const fetchData = () => {
+      fetchApplications();
+      fetchStatistics();
+    };
+
+    // 5 saniye aralıklarla otomatik yenileme
+    const intervalId = setInterval(fetchData, 5000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [session, authStatus, isPageVisible, isPageFocused, fetchApplications, fetchStatistics]);
+
+  const fetchStatistics = useCallback(async () => {
     setStatsLoading(true);
     try {
       const res = await fetch("/api/statistics");
@@ -123,9 +174,9 @@ export default function ApplicationsPage() {
     } finally {
       setStatsLoading(false);
     }
-  };
+  }, []);
 
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
@@ -148,7 +199,7 @@ export default function ApplicationsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, statusFilter, search]);
 
   const handleSearch = () => {
     setPagination(prev => ({ ...prev, page: 1 }));
@@ -406,7 +457,7 @@ export default function ApplicationsPage() {
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 placeholder="İsim, telefon, e-posta veya plaka ara..."
-                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none"
+                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none min-h-[44px] text-base"
               />
             </div>
             <Button onClick={handleSearch} className="bg-brand-red hover:bg-brand-red-dark text-white">
@@ -423,7 +474,7 @@ export default function ApplicationsPage() {
                 setStatusFilter(e.target.value);
                 setPagination(prev => ({ ...prev, page: 1 }));
               }}
-              className="px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none bg-white dark:bg-gray-800 dark:text-white"
+              className="px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none bg-white dark:bg-gray-800 dark:text-white min-h-[44px] text-base"
             >
               {statusOptions.map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -449,8 +500,8 @@ export default function ApplicationsPage() {
 
         {/* Applications Table */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className="w-full min-w-[800px]">
               <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Müşteri</th>

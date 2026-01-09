@@ -154,7 +154,7 @@ export function PackagesSection() {
 
                           <button
                             onClick={() => openModal(pkg)}
-                            className={`w-full py-4 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all duration-300 ${
+                            className={`w-full py-4 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all duration-300 min-h-[44px] touch-manipulation ${
                               pkg.popular
                                 ? "bg-brand-red hover:bg-brand-red-dark text-white"
                                 : "bg-brand-black hover:bg-brand-black/90 text-white"

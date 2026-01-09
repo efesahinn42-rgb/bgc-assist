@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Menu, X } from "lucide-react";
+import { Phone, Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -48,7 +48,6 @@ export function Header() {
           ? "bg-brand-black/95 backdrop-blur-md shadow-lg py-2"
           : "bg-transparent py-4"
       }`}
-      style={{ top: isScrolled ? 0 : "36px" }}
     >
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -62,6 +61,10 @@ export function Header() {
                 height={0}
                 sizes="(max-width: 768px) 160px, 200px"
                 className="h-14 md:h-16 w-auto object-contain"
+                style={{ 
+                  mixBlendMode: 'multiply',
+                  filter: 'contrast(1.1) brightness(1.05)'
+                }}
                 priority
               />
             </div>
@@ -101,6 +104,14 @@ export function Header() {
             >
               Yardım Al
             </Button>
+            <Link href="#">
+              <Button 
+                className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white px-6 py-5 text-base font-semibold backdrop-blur-sm"
+              >
+                <User className="w-4 h-4 mr-2" />
+                Bayi Girişi
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -164,6 +175,14 @@ export function Header() {
                 >
                   Yardım Al
                 </Button>
+                <Link href="#" className="block">
+                  <Button 
+                    className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white w-full py-6 text-lg font-semibold backdrop-blur-sm"
+                  >
+                    <User className="w-5 h-5 mr-2" />
+                    Bayi Girişi
+                  </Button>
+                </Link>
               </motion.div>
             </nav>
           </motion.div>
