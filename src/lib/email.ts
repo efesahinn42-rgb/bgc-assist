@@ -43,6 +43,15 @@ export async function sendApplicationEmail(
       throw new Error("RESEND_API_KEY environment variable bulunamadı");
     }
 
+    // Test modu kontrolü: onboarding@resend.dev ile sadece kendi email adresinize gönderebilirsiniz
+    const fromEmail = "onboarding@resend.dev";
+    const isTestMode = !process.env.TEST_EMAIL || process.env.TEST_EMAIL === companyEmail;
+    
+    if (fromEmail === "onboarding@resend.dev" && !isTestMode) {
+      console.warn("⚠️ Resend test domain'i (onboarding@resend.dev) ile sadece kendi email adresinize gönderebilirsiniz.");
+      console.warn("⚠️ TEST_EMAIL environment variable'ını Vercel'e ekleyin veya Resend'de domain verify edin.");
+    }
+
     console.log(`📧 Email gönderiliyor: ${companyEmail}`);
     const apiKey = process.env.RESEND_API_KEY;
     console.log(`🔑 RESEND_API_KEY mevcut: ${apiKey ? 'Evet' : 'Hayır'}`);
