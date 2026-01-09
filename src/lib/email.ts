@@ -284,18 +284,21 @@ export async function sendApplicationEmail(
     const { data, error } = await resend.emails.send(emailPayload);
 
     if (error) {
+      // Error'u any olarak cast et çünkü Resend'in ErrorResponse tipinde tüm property'ler tanımlı değil
+      const errorAny = error as any;
+      
       // Detaylı error logging
       console.error("❌ Resend API Error Detayları:", {
-        statusCode: error?.statusCode,
-        name: error?.name,
-        message: error?.message,
+        statusCode: errorAny?.statusCode,
+        name: errorAny?.name,
+        message: errorAny?.message,
         // Resend error objesi genellikle bu alanları içerir
-        ...(typeof error === 'object' && error !== null ? error : {}),
+        ...(typeof error === 'object' && error !== null ? errorAny : {}),
       });
       
       // Error response'un tam detaylarını logla
       if (error && typeof error === 'object') {
-        console.error("❌ Resend Error Object:", JSON.stringify(error, null, 2));
+        console.error("❌ Resend Error Object:", JSON.stringify(errorAny, null, 2));
       }
       
       throw error;
@@ -304,20 +307,23 @@ export async function sendApplicationEmail(
     console.log("✅ Email başarıyla gönderildi:", data);
     return { success: true, data };
   } catch (error: any) {
+    // Error'u any olarak kullan çünkü farklı error tipleri olabilir
+    const errorAny = error as any;
+    
     // Detaylı error logging - tüm error bilgilerini logla
     console.error("❌ Email gönderme hatası (Catch Block):", {
-      message: error?.message,
-      name: error?.name,
-      statusCode: error?.statusCode,
-      stack: error?.stack,
-      response: error?.response,
+      message: errorAny?.message,
+      name: errorAny?.name,
+      statusCode: errorAny?.statusCode,
+      stack: errorAny?.stack,
+      response: errorAny?.response,
       // Error objesinin tüm özelliklerini logla
-      errorObject: error && typeof error === 'object' ? JSON.stringify(error, Object.getOwnPropertyNames(error), 2) : error,
+      errorObject: error && typeof error === 'object' ? JSON.stringify(errorAny, Object.getOwnPropertyNames(errorAny), 2) : error,
     });
     
     // Error'un tam detaylarını stringify ile logla
     try {
-      console.error("❌ Full Error Details:", JSON.stringify(error, null, 2));
+      console.error("❌ Full Error Details:", JSON.stringify(errorAny, null, 2));
     } catch (stringifyError) {
       console.error("❌ Error stringify edilemedi:", stringifyError);
     }
