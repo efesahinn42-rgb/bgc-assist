@@ -273,10 +273,7 @@ export async function sendApplicationEmail(
       </html>
     `;
 
-    // From email adresi - Test modu için onboarding@resend.dev kullan
-    // Production'da domain verify edildikten sonra kendi domain'inizi kullanın
-    const fromEmail = "onboarding@resend.dev"; // Test modu için sadece email adresi
-    
+    // fromEmail zaten yukarıda tanımlanmış (satır 47)
     const emailPayload = {
       from: fromEmail,
       to: [companyEmail],
