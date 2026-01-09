@@ -7,6 +7,12 @@ const getResendClient = () => {
     console.error("❌ RESEND_API_KEY environment variable bulunamadı!");
     return null;
   }
+  
+  // API key format kontrolü (Resend API key'leri "re_" ile başlar)
+  if (!apiKey.startsWith("re_")) {
+    console.warn("⚠️ RESEND_API_KEY formatı beklenen formatta değil (re_ ile başlamalı)");
+  }
+  
   return new Resend(apiKey);
 };
 
@@ -38,7 +44,11 @@ export async function sendApplicationEmail(
     }
 
     console.log(`📧 Email gönderiliyor: ${companyEmail}`);
-    console.log(`🔑 RESEND_API_KEY mevcut: ${process.env.RESEND_API_KEY ? 'Evet' : 'Hayır'}`);
+    const apiKey = process.env.RESEND_API_KEY;
+    console.log(`🔑 RESEND_API_KEY mevcut: ${apiKey ? 'Evet' : 'Hayır'}`);
+    if (apiKey) {
+      console.log(`🔑 RESEND_API_KEY format: ${apiKey.startsWith("re_") ? 'Doğru (re_ ile başlıyor)' : 'Uyarı: re_ ile başlamıyor'}`);
+    }
     
     // Email HTML template
     const emailHtml = `
@@ -254,10 +264,12 @@ export async function sendApplicationEmail(
       </html>
     `;
 
-    console.log(`📧 Email gönderiliyor: ${companyEmail}`);
+    // From email adresi - Test modu için onboarding@resend.dev kullan
+    // Production'da domain verify edildikten sonra kendi domain'inizi kullanın
+    const fromEmail = "onboarding@resend.dev"; // Test modu için sadece email adresi
     
     const emailPayload = {
-      from: "BGCAssist <onboarding@resend.dev>", // Test için, domain verify edildikten sonra değiştirilecek
+      from: fromEmail,
       to: [companyEmail],
       subject: `Yeni Başvuru: ${applicationData.fullName} - ${applicationData.packageName}`,
       html: emailHtml,
@@ -272,19 +284,44 @@ export async function sendApplicationEmail(
     const { data, error } = await resend.emails.send(emailPayload);
 
     if (error) {
-      console.error("❌ Resend error:", error);
+      // Detaylı error logging
+      console.error("❌ Resend API Error Detayları:", {
+        statusCode: error?.statusCode,
+        name: error?.name,
+        message: error?.message,
+        // Resend error objesi genellikle bu alanları içerir
+        ...(typeof error === 'object' && error !== null ? error : {}),
+      });
+      
+      // Error response'un tam detaylarını logla
+      if (error && typeof error === 'object') {
+        console.error("❌ Resend Error Object:", JSON.stringify(error, null, 2));
+      }
+      
       throw error;
     }
 
     console.log("✅ Email başarıyla gönderildi:", data);
     return { success: true, data };
   } catch (error: any) {
-    console.error("❌ Email gönderme hatası:", {
+    // Detaylı error logging - tüm error bilgilerini logla
+    console.error("❌ Email gönderme hatası (Catch Block):", {
       message: error?.message,
       name: error?.name,
+      statusCode: error?.statusCode,
       stack: error?.stack,
       response: error?.response,
+      // Error objesinin tüm özelliklerini logla
+      errorObject: error && typeof error === 'object' ? JSON.stringify(error, Object.getOwnPropertyNames(error), 2) : error,
     });
+    
+    // Error'un tam detaylarını stringify ile logla
+    try {
+      console.error("❌ Full Error Details:", JSON.stringify(error, null, 2));
+    } catch (stringifyError) {
+      console.error("❌ Error stringify edilemedi:", stringifyError);
+    }
+    
     throw error;
   }
 }
