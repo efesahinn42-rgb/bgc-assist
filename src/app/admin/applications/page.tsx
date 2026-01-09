@@ -102,16 +102,6 @@ export default function ApplicationsPage() {
     }
   }, [authStatus, router]);
 
-  useEffect(() => {
-    fetchApplications();
-  }, [pagination.page, statusFilter]);
-
-  useEffect(() => {
-    if (session) {
-      fetchStatistics();
-    }
-  }, [session]);
-
   // Sayfa görünürlüğü kontrolü
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -138,29 +128,7 @@ export default function ApplicationsPage() {
     };
   }, []);
 
-  // Polling mekanizması - sadece sayfa görünür ve focus'tayken çalışır
-  useEffect(() => {
-    if (!session || authStatus !== "authenticated") return;
-
-    // Polling sadece sayfa görünür ve focus'tayken aktif
-    const shouldPoll = isPageVisible && isPageFocused;
-
-    if (!shouldPoll) return;
-
-    // İlk fetch'i hemen yap
-    const fetchData = () => {
-      fetchApplications();
-      fetchStatistics();
-    };
-
-    // 5 saniye aralıklarla otomatik yenileme
-    const intervalId = setInterval(fetchData, 5000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [session, authStatus, isPageVisible, isPageFocused, fetchApplications, fetchStatistics]);
-
+  // Fetch fonksiyonları - useEffect'lerden önce tanımlanmalı
   const fetchStatistics = useCallback(async () => {
     setStatsLoading(true);
     try {
@@ -200,6 +168,39 @@ export default function ApplicationsPage() {
       setLoading(false);
     }
   }, [pagination.page, pagination.limit, statusFilter, search]);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
+
+  useEffect(() => {
+    if (session) {
+      fetchStatistics();
+    }
+  }, [session, fetchStatistics]);
+
+  // Polling mekanizması - sadece sayfa görünür ve focus'tayken çalışır
+  useEffect(() => {
+    if (!session || authStatus !== "authenticated") return;
+
+    // Polling sadece sayfa görünür ve focus'tayken aktif
+    const shouldPoll = isPageVisible && isPageFocused;
+
+    if (!shouldPoll) return;
+
+    // İlk fetch'i hemen yap
+    const fetchData = () => {
+      fetchApplications();
+      fetchStatistics();
+    };
+
+    // 5 saniye aralıklarla otomatik yenileme
+    const intervalId = setInterval(fetchData, 5000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [session, authStatus, isPageVisible, isPageFocused, fetchApplications, fetchStatistics]);
 
   const handleSearch = () => {
     setPagination(prev => ({ ...prev, page: 1 }));
