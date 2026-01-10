@@ -201,18 +201,18 @@ export async function POST(request: NextRequest) {
       await sendApplicationEmail(
         {
           fullName: newApplication.fullName,
-          tcNo: newApplication.tcNo,
-          email: newApplication.email,
+          tcNo: newApplication.tcNo ?? undefined,
+          email: newApplication.email ?? undefined,
           phone: newApplication.phone,
-          city: newApplication.city,
-          district: newApplication.district,
-          address: newApplication.address || undefined,
-          plate: newApplication.plate,
-          brand: newApplication.brand,
-          model: newApplication.model || undefined,
-          year: newApplication.year || undefined,
+          city: newApplication.city ?? undefined,
+          district: newApplication.district ?? undefined,
+          address: newApplication.address ?? undefined,
+          plate: newApplication.plate ?? undefined,
+          brand: newApplication.brand ?? undefined,
+          model: newApplication.model ?? undefined,
+          year: newApplication.year ?? undefined,
           packageName: newApplication.packageName,
-          packagePrice: newApplication.packagePrice || undefined,
+          packagePrice: newApplication.packagePrice ?? undefined,
         },
         companyEmail
       );
