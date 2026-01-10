@@ -41,6 +41,8 @@ export async function GET(request: NextRequest) {
     // Eğer lastCheck varsa, sadece yeni başvuruları getir
     const whereForNew = { ...where };
     let lastCheckDate: Date | null = null;
+    let newCount = 0; // newCount'u daha geniş scope'ta tanımla
+    
     if (lastCheck) {
       try {
         lastCheckDate = new Date(lastCheck);
@@ -55,7 +57,7 @@ export async function GET(request: NextRequest) {
     // Polling modunda (lastCheck varsa) önce yeni veri kontrolü yap
     if (lastCheck && lastCheckDate) {
       // Önce sadece count kontrolü yap (daha hızlı)
-      const newCount = await prisma.application.count({ where: whereForNew });
+      newCount = await prisma.application.count({ where: whereForNew });
       
       if (newCount === 0) {
         // Yeni veri yok, gereksiz query'leri atla
@@ -105,8 +107,6 @@ export async function GET(request: NextRequest) {
       prisma.application.count({ where }),
     ]);
 
-    const hasNewData = applications.length > 0;
-
     return NextResponse.json({
       applications,
       pagination: {
@@ -115,8 +115,8 @@ export async function GET(request: NextRequest) {
         total,
         totalPages: Math.ceil(total / limit),
       },
-      hasNewData,
-      newCount: lastCheck ? newCount : applications.length,
+      hasNewData: false,
+      newCount: applications.length,
     });
   } catch (error) {
     console.error("Error fetching applications:", error);
