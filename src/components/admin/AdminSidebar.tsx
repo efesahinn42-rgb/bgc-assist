@@ -15,7 +15,8 @@ import {
   X,
   Loader2,
   Moon,
-  Sun
+  Sun,
+  Image
 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,6 +26,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
   { icon: Package, label: "Paketler", href: "/admin/packages" },
   { icon: Wrench, label: "Hizmetler", href: "/admin/services" },
+  { icon: Image, label: "Sliderlar", href: "/admin/sliders" },
   { icon: FileText, label: "Başvurular", href: "/admin/applications" },
   { icon: Settings, label: "Ayarlar", href: "/admin/settings" },
 ];

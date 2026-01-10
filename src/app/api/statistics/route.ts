@@ -18,89 +18,106 @@ export async function GET() {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-    // Toplam başvuru sayısı
-    const total = await prisma.application.count();
+    // Aylık trend için tarihleri önceden hesapla
+    const monthNames = [
+      "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+      "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
+    ];
+    const monthlyDates = [];
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+      monthlyDates.push({ date, nextMonth, monthName: monthNames[date.getMonth()], year: date.getFullYear() });
+    }
 
-    // Bu ayki başvuru sayısı
-    const thisMonth = await prisma.application.count({
-      where: {
-        createdAt: {
-          gte: startOfMonth,
+    // Tüm query'leri paralel çalıştır
+    const [
+      total,
+      thisMonth,
+      thisYear,
+      byStatusRaw,
+      totalPackages,
+      totalServices,
+      recentApplications,
+      ...monthlyCounts
+    ] = await Promise.all([
+      // Toplam başvuru sayısı
+      prisma.application.count(),
+      
+      // Bu ayki başvuru sayısı
+      prisma.application.count({
+        where: {
+          createdAt: {
+            gte: startOfMonth,
+          },
         },
-      },
-    });
-
-    // Bu yılki başvuru sayısı
-    const thisYear = await prisma.application.count({
-      where: {
-        createdAt: {
-          gte: startOfYear,
+      }),
+      
+      // Bu yılki başvuru sayısı
+      prisma.application.count({
+        where: {
+          createdAt: {
+            gte: startOfYear,
+          },
         },
-      },
-    });
+      }),
+      
+      // Duruma göre dağılım
+      prisma.application.groupBy({
+        by: ["status"],
+        _count: {
+          status: true,
+        },
+      }),
+      
+      // Paket sayısı
+      prisma.package.count({
+        where: { isActive: true },
+      }),
+      
+      // Hizmet sayısı
+      prisma.service.count({
+        where: { isActive: true },
+      }),
+      
+      // Son 5 başvuru
+      prisma.application.findMany({
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          fullName: true,
+          packageName: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+      
+      // Aylık trend (paralel)
+      ...monthlyDates.map(({ date, nextMonth }) =>
+        prisma.application.count({
+          where: {
+            createdAt: {
+              gte: date,
+              lt: nextMonth,
+            },
+          },
+        })
+      ),
+    ]);
 
-    // Duruma göre dağılım
-    const byStatusRaw = await prisma.application.groupBy({
-      by: ["status"],
-      _count: {
-        status: true,
-      },
-    });
-
+    // Duruma göre dağılımı işle
     const byStatus: Record<string, number> = {};
     byStatusRaw.forEach((item) => {
       byStatus[item.status] = item._count.status;
     });
 
-    // Aylık trend (son 12 ay)
-    const monthlyTrend = [];
-    const monthNames = [
-      "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-      "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
-    ];
-
-    for (let i = 11; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const nextMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-      
-      const count = await prisma.application.count({
-        where: {
-          createdAt: {
-            gte: date,
-            lt: nextMonth,
-          },
-        },
-      });
-
-      monthlyTrend.push({
-        month: monthNames[date.getMonth()],
-        year: date.getFullYear(),
-        count,
-      });
-    }
-
-    // Paket sayısı
-    const totalPackages = await prisma.package.count({
-      where: { isActive: true },
-    });
-
-    // Hizmet sayısı
-    const totalServices = await prisma.service.count({
-      where: { isActive: true },
-    });
-
-    // Son 5 başvuru
-    const recentApplications = await prisma.application.findMany({
-      take: 5,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        fullName: true,
-        packageName: true,
-        status: true,
-        createdAt: true,
-      },
-    });
+    // Aylık trend'i oluştur
+    const monthlyTrend = monthlyDates.map(({ monthName, year }, index) => ({
+      month: monthName,
+      year,
+      count: monthlyCounts[index],
+    }));
 
     // Bekleyen başvurular
     const pendingCount = byStatus["PENDING"] || 0;

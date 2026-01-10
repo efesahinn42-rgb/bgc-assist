@@ -1,10 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade, Navigation } from "swiper/modules";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ShieldCheck, Clock, MapPin, Users, Star, Activity, Car } from "lucide-react";
+import { ChevronRight, ShieldCheck, Clock, MapPin, Users, Star, Activity, Car, Loader2 } from "lucide-react";
 import { getPackageByCategory } from "@/lib/packages-data";
 import { usePurchaseModal } from "@/context/PurchaseModalContext";
 
@@ -14,86 +15,34 @@ import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 import "swiper/css/navigation";
 
-const slides = [
-  {
-    id: 1,
-    category: "Otomobil",
-    title: "Yolda Kalmak Yok, Devam Etmek Var.",
-    desc: "Binek araçlarınız için 7/24 çekici, yerinde akü ve lastik değişimi hizmeti. Ailenizle güvenle seyahat edin.",
-    image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1920&auto=format&fit=crop",
-    color: "blue",
-    stats: [
-      { icon: Clock, label: "Ort. Varış", value: "18 Dk" },
-      { icon: MapPin, label: "Hizmet Ağı", value: "81 İl" },
-      { icon: Users, label: "Mutlu Müşteri", value: "10K+" },
-    ],
-  },
-  {
-    id: 2,
-    category: "Motosiklet",
-    title: "İki Teker Özgürlüktür, Biz Güvencesiyiz.",
-    desc: "Motosikletlere özel aparatlı çekicilerimizle, motorunuzu çizmeden, devirmeden güvenle taşıyoruz.",
-    image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1920&auto=format&fit=crop",
-    color: "orange",
-    stats: [
-      { icon: ShieldCheck, label: "Güvenlik", value: "%100" },
-      { icon: Star, label: "Memnuniyet", value: "4.9/5" },
-      { icon: Activity, label: "Operasyon", value: "7/24" },
-    ],
-  },
-  {
-    id: 3,
-    category: "Hafif Ticari",
-    title: "Esnafın Yükünü Hafifletiyoruz.",
-    desc: "Doblo, Transporter ve Panelvan araçlarınız arızalandığında işiniz aksamasın. Hızlı müdahale ekibi hazır.",
-    image: "https://images.unsplash.com/photo-1656426650699-a76ffe479608?q=80&w=1920&auto=format&fit=crop",
-    color: "emerald",
-    stats: [
-      { icon: Activity, label: "Yük Kapasitesi", value: "3.5 Ton" },
-      { icon: Clock, label: "Müdahale", value: "Hızlı" },
-      { icon: ShieldCheck, label: "Kasko", value: "Var" },
-    ],
-  },
-  {
-    id: 4,
-    category: "Ağır Ticari",
-    title: "Devler Yolda Kalmaz.",
-    desc: "Tır, Kamyon ve Otobüs filoları için ağır hizmet kurtarıcılarımızla lojistik operasyonlarınız kesintisiz sürsün.",
-    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1920&auto=format&fit=crop",
-    color: "slate",
-    stats: [
-      { icon: MapPin, label: "Kapsama", value: "Tüm TR" },
-      { icon: Users, label: "Filo Referans", value: "500+" },
-      { icon: Activity, label: "Tonaj", value: "40 Ton" },
-    ],
-  },
-  {
-    id: 5,
-    category: "İkame Araç",
-    title: "Aracınız Servisteyken Konforunuz Sürsün.",
-    desc: "Kaza veya arıza durumunda aracınız servisteyken size en uygun ikame aracı anında tahsis ediyoruz.",
-    image: "https://images.unsplash.com/photo-1550355291-bbee04a92027?q=80&w=1920&auto=format&fit=crop",
-    color: "violet",
-    stats: [
-      { icon: Car, label: "Araç Filosu", value: "5000+" },
-      { icon: Clock, label: "Teslimat", value: "Anında" },
-      { icon: ShieldCheck, label: "Kasko", value: "Full" },
-    ],
-  },
-  {
-    id: 6,
-    category: "Moto Karavan",
-    title: "Tatil Keyfiniz Yarıda Kalmasın.",
-    desc: "Karavan tutkunlarına özel yol yardım. Tatil rotanız neresi olursa olsun, BGC Assist orada.",
-    image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?q=80&w=1920&auto=format&fit=crop",
-    color: "amber",
-    stats: [
-      { icon: MapPin, label: "Bölge", value: "Tüm Kıyılar" },
-      { icon: Activity, label: "Çekici Tipi", value: "Özel" },
-      { icon: Star, label: "Puan", value: "5.0" },
-    ],
-  },
-];
+// Icon mapping for stats
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Clock,
+  MapPin,
+  Users,
+  Star,
+  Activity,
+  Car,
+  ShieldCheck,
+};
+
+interface SliderStat {
+  icon: string;
+  label: string;
+  value: string;
+}
+
+interface Slider {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  image: string;
+  color: string;
+  stats: SliderStat[];
+  order: number;
+  isActive: boolean;
+}
 
 // Color mapping for categories
 const colorMap: Record<string, { bg: string; text: string; border: string }> = {
@@ -104,6 +53,100 @@ const colorMap: Record<string, { bg: string; text: string; border: string }> = {
   violet: { bg: "bg-violet-500", text: "text-violet-500", border: "border-violet-500" },
   amber: { bg: "bg-amber-500", text: "text-amber-500", border: "border-amber-500" },
 };
+
+// Static slider data as fallback
+const staticSliders: Slider[] = [
+  {
+    id: "1",
+    category: "Otomobil",
+    title: "Yolda Kalmak Yok, Devam Etmek Var.",
+    description: "Binek araçlarınız için 7/24 çekici, yerinde akü ve lastik değişimi hizmeti. Ailenizle güvenle seyahat edin.",
+    image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1920&auto=format&fit=crop",
+    color: "blue",
+    stats: [
+      { icon: "Clock", label: "Ort. Varış", value: "18 Dk" },
+      { icon: "MapPin", label: "Hizmet Ağı", value: "81 İl" },
+      { icon: "Users", label: "Mutlu Müşteri", value: "10K+" },
+    ],
+    order: 1,
+    isActive: true,
+  },
+  {
+    id: "2",
+    category: "Motosiklet",
+    title: "İki Teker Özgürlüktür, Biz Güvencesiyiz.",
+    description: "Motosikletlere özel aparatlı çekicilerimizle, motorunuzu çizmeden, devirmeden güvenle taşıyoruz.",
+    image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1920&auto=format&fit=crop",
+    color: "orange",
+    stats: [
+      { icon: "ShieldCheck", label: "Güvenlik", value: "%100" },
+      { icon: "Star", label: "Memnuniyet", value: "4.9/5" },
+      { icon: "Activity", label: "Operasyon", value: "7/24" },
+    ],
+    order: 2,
+    isActive: true,
+  },
+  {
+    id: "3",
+    category: "Hafif Ticari",
+    title: "Esnafın Yükünü Hafifletiyoruz.",
+    description: "Doblo, Transporter ve Panelvan araçlarınız arızalandığında işiniz aksamasın. Hızlı müdahale ekibi hazır.",
+    image: "https://images.unsplash.com/photo-1656426650699-a76ffe479608?q=80&w=1920&auto=format&fit=crop",
+    color: "emerald",
+    stats: [
+      { icon: "Activity", label: "Yük Kapasitesi", value: "3.5 Ton" },
+      { icon: "Clock", label: "Müdahale", value: "Hızlı" },
+      { icon: "ShieldCheck", label: "Kasko", value: "Var" },
+    ],
+    order: 3,
+    isActive: true,
+  },
+  {
+    id: "4",
+    category: "Ağır Ticari",
+    title: "Devler Yolda Kalmaz.",
+    description: "Tır, Kamyon ve Otobüs filoları için ağır hizmet kurtarıcılarımızla lojistik operasyonlarınız kesintisiz sürsün.",
+    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1920&auto=format&fit=crop",
+    color: "slate",
+    stats: [
+      { icon: "MapPin", label: "Kapsama", value: "Tüm TR" },
+      { icon: "Users", label: "Filo Referans", value: "500+" },
+      { icon: "Activity", label: "Tonaj", value: "40 Ton" },
+    ],
+    order: 4,
+    isActive: true,
+  },
+  {
+    id: "5",
+    category: "İkame Araç",
+    title: "Aracınız Servisteyken Konforunuz Sürsün.",
+    description: "Kaza veya arıza durumunda aracınız servisteyken size en uygun ikame aracı anında tahsis ediyoruz.",
+    image: "https://images.unsplash.com/photo-1550355291-bbee04a92027?q=80&w=1920&auto=format&fit=crop",
+    color: "violet",
+    stats: [
+      { icon: "Car", label: "Araç Filosu", value: "5000+" },
+      { icon: "Clock", label: "Teslimat", value: "Anında" },
+      { icon: "ShieldCheck", label: "Kasko", value: "Full" },
+    ],
+    order: 5,
+    isActive: true,
+  },
+  {
+    id: "6",
+    category: "Moto Karavan",
+    title: "Tatil Keyfiniz Yarıda Kalmasın.",
+    description: "Karavan tutkunlarına özel yol yardım. Tatil rotanız neresi olursa olsun, BGC Assist orada.",
+    image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?q=80&w=1920&auto=format&fit=crop",
+    color: "amber",
+    stats: [
+      { icon: "MapPin", label: "Bölge", value: "Tüm Kıyılar" },
+      { icon: "Activity", label: "Çekici Tipi", value: "Özel" },
+      { icon: "Star", label: "Puan", value: "5.0" },
+    ],
+    order: 6,
+    isActive: true,
+  },
+];
 
 // Car brands with slug for logo API
 const carBrands = [
@@ -125,6 +168,31 @@ const carBrands = [
 
 export function HeroSection() {
   const { openModal } = usePurchaseModal();
+  // İlk önce static sliders ile başlat, hemen göster
+  const [slides, setSlides] = useState<Slider[]>(staticSliders);
+
+  useEffect(() => {
+    // Arka planda API'den veri çek, loading state gösterme
+    fetchSliders();
+  }, []);
+
+  const fetchSliders = async () => {
+    try {
+      const res = await fetch("/api/sliders?active=true");
+      if (res.ok) {
+        const data = await res.json();
+        // If API returns data, use it; otherwise keep static sliders
+        if (data && data.length > 0) {
+          setSlides(data); // API'den gelen verileri göster
+        }
+        // Eğer boşsa, static sliders kalır (zaten başlangıçta set edildi)
+      }
+      // Hata durumunda da static sliders kalır (zaten başlangıçta set edildi)
+    } catch (err) {
+      // Hata durumunda static sliders kalır (zaten başlangıçta set edildi)
+      console.error("Error fetching sliders, using static:", err);
+    }
+  };
 
   const handleApplyClick = (category: string) => {
     const pkg = getPackageByCategory(category);
@@ -190,7 +258,7 @@ export function HeroSection() {
                         {slide.title}
                       </h1>
                       <p className="text-lg md:text-xl lg:text-2xl text-brand-white/80 mb-10 leading-relaxed max-w-2xl">
-                        {slide.desc}
+                        {slide.description}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-4">
                         <Button 
@@ -211,27 +279,29 @@ export function HeroSection() {
                       </div>
 
                       {/* Dynamic Stats */}
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1 }}
-                        className="flex flex-wrap items-center gap-6 lg:gap-8 mt-12 pt-8 border-t border-brand-white/10"
-                      >
-                        {slide.stats.map((stat, statIndex) => {
-                          const StatIcon = stat.icon;
-                          return (
-                            <div key={statIndex} className="flex items-center gap-3">
-                              <div className={`w-12 h-12 rounded-xl ${colors.bg}/20 flex items-center justify-center`}>
-                                <StatIcon className={`w-6 h-6 ${colors.text}`} />
+                      {slide.stats && slide.stats.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 1 }}
+                          className="flex flex-wrap items-center gap-6 lg:gap-8 mt-12 pt-8 border-t border-brand-white/10"
+                        >
+                          {slide.stats.map((stat, statIndex) => {
+                            const StatIcon = iconMap[stat.icon] || Clock;
+                            return (
+                              <div key={statIndex} className="flex items-center gap-3">
+                                <div className={`w-12 h-12 rounded-xl ${colors.bg}/20 flex items-center justify-center`}>
+                                  <StatIcon className={`w-6 h-6 ${colors.text}`} />
+                                </div>
+                                <div>
+                                  <div className="text-2xl font-bold text-brand-white">{stat.value}</div>
+                                  <div className="text-sm text-brand-white/60">{stat.label}</div>
+                                </div>
                               </div>
-                              <div>
-                                <div className="text-2xl font-bold text-brand-white">{stat.value}</div>
-                                <div className="text-sm text-brand-white/60">{stat.label}</div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </motion.div>
+                            );
+                          })}
+                        </motion.div>
+                      )}
                     </motion.div>
                   </div>
                 </div>

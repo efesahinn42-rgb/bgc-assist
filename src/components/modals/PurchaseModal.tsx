@@ -44,8 +44,20 @@ const initialFormData: FormData = {
   termsAccepted: false,
 };
 
-const carBrands = ["Audi", "BMW", "Fiat", "Ford", "Honda", "Hyundai", "Kia", "Mercedes", "Nissan", "Opel", "Peugeot", "Renault", "Skoda", "Toyota", "Volkswagen", "Volvo"];
-const cities = ["İstanbul", "Ankara", "İzmir", "Bursa", "Antalya", "Adana", "Konya", "Gaziantep", "Mersin", "Diyarbakır", "Kayseri", "Eskişehir", "Samsun", "Denizli", "Şanlıurfa"];
+interface City {
+  id: string;
+  name: string;
+}
+
+interface District {
+  id: string;
+  name: string;
+}
+
+interface VehicleBrandCategory {
+  name: string;
+  brands: string[];
+}
 
 export function PurchaseModal() {
   const { isOpen, selectedPackage, closeModal } = usePurchaseModal();
@@ -55,6 +67,78 @@ export function PurchaseModal() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  
+  // API data states
+  const [cities, setCities] = useState<City[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [vehicleBrandCategories, setVehicleBrandCategories] = useState<VehicleBrandCategory[]>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [loadingBrands, setLoadingBrands] = useState(false);
+
+  // Fetch cities on mount
+  useEffect(() => {
+    const fetchCities = async () => {
+      setLoadingCities(true);
+      try {
+        const res = await fetch("/api/cities");
+        if (res.ok) {
+          const data = await res.json();
+          setCities(data.cities || []);
+        }
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      } finally {
+        setLoadingCities(false);
+      }
+    };
+    fetchCities();
+  }, []);
+
+  // Fetch vehicle brands on mount
+  useEffect(() => {
+    const fetchBrands = async () => {
+      setLoadingBrands(true);
+      try {
+        const res = await fetch("/api/vehicle-brands");
+        if (res.ok) {
+          const data = await res.json();
+          setVehicleBrandCategories(data.categories || []);
+        }
+      } catch (error) {
+        console.error("Error fetching vehicle brands:", error);
+      } finally {
+        setLoadingBrands(false);
+      }
+    };
+    fetchBrands();
+  }, []);
+
+  // Fetch districts when city changes
+  useEffect(() => {
+    if (formData.city) {
+      const fetchDistricts = async () => {
+        setLoadingDistricts(true);
+        setDistricts([]);
+        setFormData(prev => ({ ...prev, district: "" })); // Reset district when city changes
+        try {
+          const res = await fetch(`/api/districts?city=${encodeURIComponent(formData.city)}`);
+          if (res.ok) {
+            const data = await res.json();
+            setDistricts(data.districts || []);
+          }
+        } catch (error) {
+          console.error("Error fetching districts:", error);
+        } finally {
+          setLoadingDistricts(false);
+        }
+      };
+      fetchDistricts();
+    } else {
+      setDistricts([]);
+      setFormData(prev => ({ ...prev, district: "" }));
+    }
+  }, [formData.city]);
 
   // Reset form when modal opens
   useEffect(() => {
@@ -62,6 +146,7 @@ export function PurchaseModal() {
       setStep(1);
       setFormData(initialFormData);
       setIsSuccess(false);
+      setDistricts([]);
     }
   }, [isOpen]);
 
@@ -153,11 +238,14 @@ export function PurchaseModal() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return formData.fullName.length >= 3 && formData.tcNumber.length === 11 && formData.email.includes("@");
+        // Only fullName is required
+        return formData.fullName.length >= 3;
       case 2:
-        return formData.phone.length >= 10 && formData.city && formData.district;
+        // Only phone is required
+        return formData.phone.length >= 10;
       case 3:
-        return formData.plate.length >= 5 && formData.brand && formData.model;
+        // All fields are optional, always allow proceeding
+        return true;
       case 4:
         return formData.termsAccepted;
       default:
@@ -256,23 +344,23 @@ export function PurchaseModal() {
                       </div>
                       
                       <div>
-                        <label className="text-sm text-brand-gray mb-1.5 block">TC Kimlik No *</label>
+                        <label className="text-sm text-brand-gray mb-1.5 block">TC Kimlik No</label>
                         <input
                           type="text"
                           value={formData.tcNumber}
                           onChange={(e) => updateFormData("tcNumber", e.target.value.replace(/\D/g, "").slice(0, 11))}
-                          placeholder="11 haneli TC Kimlik Numaranız"
+                          placeholder="11 haneli TC Kimlik Numaranız (opsiyonel)"
                           className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
                         />
                       </div>
                       
                       <div>
-                        <label className="text-sm text-brand-gray mb-1.5 block">E-posta *</label>
+                        <label className="text-sm text-brand-gray mb-1.5 block">E-posta</label>
                         <input
                           type="email"
                           value={formData.email}
                           onChange={(e) => updateFormData("email", e.target.value)}
-                          placeholder="ornek@email.com"
+                          placeholder="ornek@email.com (opsiyonel)"
                           className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
                         />
                       </div>
@@ -306,27 +394,32 @@ export function PurchaseModal() {
                       
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm text-brand-gray mb-1.5 block">İl *</label>
+                          <label className="text-sm text-brand-gray mb-1.5 block">İl</label>
                           <select
                             value={formData.city}
                             onChange={(e) => updateFormData("city", e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all bg-white"
+                            disabled={loadingCities}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all bg-white min-h-[44px] text-base disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <option value="">Seçiniz</option>
+                            <option value="">Seçiniz (opsiyonel)</option>
                             {cities.map(city => (
-                              <option key={city} value={city}>{city}</option>
+                              <option key={city.id} value={city.name}>{city.name}</option>
                             ))}
                           </select>
                         </div>
                         <div>
-                          <label className="text-sm text-brand-gray mb-1.5 block">İlçe *</label>
-                          <input
-                            type="text"
+                          <label className="text-sm text-brand-gray mb-1.5 block">İlçe</label>
+                          <select
                             value={formData.district}
                             onChange={(e) => updateFormData("district", e.target.value)}
-                            placeholder="İlçe"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
-                          />
+                            disabled={!formData.city || loadingDistricts}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all bg-white min-h-[44px] text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <option value="">{formData.city ? (loadingDistricts ? "Yükleniyor..." : "Seçiniz (opsiyonel)") : "Önce il seçiniz"}</option>
+                            {districts.map(district => (
+                              <option key={district.id} value={district.name}>{district.name}</option>
+                            ))}
+                          </select>
                         </div>
                       </div>
                       
@@ -358,37 +451,42 @@ export function PurchaseModal() {
                       </div>
                       
                       <div>
-                        <label className="text-sm text-brand-gray mb-1.5 block">Plaka *</label>
+                        <label className="text-sm text-brand-gray mb-1.5 block">Plaka</label>
                         <input
                           type="text"
                           value={formData.plate}
                           onChange={(e) => updateFormData("plate", e.target.value.toUpperCase())}
-                          placeholder="34 ABC 123"
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all uppercase"
+                          placeholder="34 ABC 123 (opsiyonel)"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all uppercase min-h-[44px] text-base"
                         />
                       </div>
                       
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm text-brand-gray mb-1.5 block">Marka *</label>
+                          <label className="text-sm text-brand-gray mb-1.5 block">Marka</label>
                           <select
                             value={formData.brand}
                             onChange={(e) => updateFormData("brand", e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all bg-white"
+                            disabled={loadingBrands}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all bg-white min-h-[44px] text-base disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <option value="">Seçiniz</option>
-                            {carBrands.map(brand => (
-                              <option key={brand} value={brand}>{brand}</option>
+                            <option value="">Seçiniz (opsiyonel)</option>
+                            {vehicleBrandCategories.map(category => (
+                              <optgroup key={category.name} label={category.name}>
+                                {category.brands.map(brand => (
+                                  <option key={brand} value={brand}>{brand}</option>
+                                ))}
+                              </optgroup>
                             ))}
                           </select>
                         </div>
                         <div>
-                          <label className="text-sm text-brand-gray mb-1.5 block">Model *</label>
+                          <label className="text-sm text-brand-gray mb-1.5 block">Model</label>
                           <input
                             type="text"
                             value={formData.model}
                             onChange={(e) => updateFormData("model", e.target.value)}
-                            placeholder="Model"
+                            placeholder="Model (opsiyonel)"
                             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all min-h-[44px] text-base"
                           />
                         </div>
@@ -427,25 +525,47 @@ export function PurchaseModal() {
                           <span className="font-medium text-brand-black">{formData.fullName}</span>
                         </div>
                         <div className="flex justify-between">
+                          <span className="text-brand-gray">TC Kimlik:</span>
+                          <span className="font-medium text-brand-black">{formData.tcNumber || "Belirtilmemiş"}</span>
+                        </div>
+                        <div className="flex justify-between">
                           <span className="text-brand-gray">Telefon:</span>
                           <span className="font-medium text-brand-black">{formData.phone}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-brand-gray">E-posta:</span>
-                          <span className="font-medium text-brand-black">{formData.email}</span>
+                          <span className="font-medium text-brand-black">{formData.email || "Belirtilmemiş"}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-brand-gray">Konum:</span>
-                          <span className="font-medium text-brand-black">{formData.city}, {formData.district}</span>
+                          <span className="font-medium text-brand-black">
+                            {formData.city && formData.district 
+                              ? `${formData.city}, ${formData.district}`
+                              : formData.city 
+                              ? formData.city
+                              : "Belirtilmemiş"}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-brand-gray">Araç:</span>
-                          <span className="font-medium text-brand-black">{formData.brand} {formData.model}</span>
+                          <span className="font-medium text-brand-black">
+                            {formData.brand && formData.model
+                              ? `${formData.brand} ${formData.model}`
+                              : formData.brand
+                              ? formData.brand
+                              : "Belirtilmemiş"}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-brand-gray">Plaka:</span>
-                          <span className="font-medium text-brand-black">{formData.plate}</span>
+                          <span className="font-medium text-brand-black">{formData.plate || "Belirtilmemiş"}</span>
                         </div>
+                        {formData.year && (
+                          <div className="flex justify-between">
+                            <span className="text-brand-gray">Model Yılı:</span>
+                            <span className="font-medium text-brand-black">{formData.year}</span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="bg-brand-red/5 rounded-xl p-4 border border-brand-red/20">

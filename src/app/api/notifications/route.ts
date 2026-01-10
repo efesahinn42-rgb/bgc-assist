@@ -13,49 +13,51 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get pending applications count
-    const pendingCount = await prisma.application.count({
-      where: { status: "PENDING" },
-    });
-
-    // Get recent applications (last 24 hours)
+    // Calculate yesterday date once
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
 
-    const recentApplications = await prisma.application.findMany({
-      where: {
-        createdAt: {
-          gte: yesterday,
+    // Execute all queries in parallel
+    const [pendingCount, recentApplications, oldPendingApplications] = await Promise.all([
+      // Get pending applications count
+      prisma.application.count({
+        where: { status: "PENDING" },
+      }),
+      // Get recent applications (last 24 hours)
+      prisma.application.findMany({
+        where: {
+          createdAt: {
+            gte: yesterday,
+          },
         },
-      },
-      take: 10,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        fullName: true,
-        packageName: true,
-        status: true,
-        createdAt: true,
-      },
-    });
-
-    // Get applications that need attention (pending for more than 24 hours)
-    const oldPendingApplications = await prisma.application.findMany({
-      where: {
-        status: "PENDING",
-        createdAt: {
-          lt: yesterday,
+        take: 10,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          fullName: true,
+          packageName: true,
+          status: true,
+          createdAt: true,
         },
-      },
-      take: 5,
-      orderBy: { createdAt: "asc" },
-      select: {
-        id: true,
-        fullName: true,
-        packageName: true,
-        createdAt: true,
-      },
-    });
+      }),
+      // Get applications that need attention (pending for more than 24 hours)
+      prisma.application.findMany({
+        where: {
+          status: "PENDING",
+          createdAt: {
+            lt: yesterday,
+          },
+        },
+        take: 5,
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          fullName: true,
+          packageName: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
     // Build notifications array
     const notifications = [];

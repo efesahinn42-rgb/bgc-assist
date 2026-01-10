@@ -54,16 +54,17 @@ export default function AdminDashboard() {
     setMounted(true);
     if (status === "unauthenticated") {
       router.push("/admin/login");
+      return;
     }
-  }, [status, router]);
-
-  useEffect(() => {
-    if (session) {
+    
+    // Session hazır olduğunda hemen veri çekmeye başla
+    if (status === "authenticated" && session) {
       fetchStatistics();
     }
-  }, [session]);
+  }, [status, session, router]);
 
   const fetchStatistics = async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/statistics");
       if (res.ok) {
@@ -77,7 +78,16 @@ export default function AdminDashboard() {
     }
   };
 
-  if (!mounted || status === "loading") {
+  // Sadece authentication kontrolü için bekle, sayfayı hemen göster
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-red" />
+      </div>
+    );
+  }
+
+  if (status === "loading") {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-brand-red" />

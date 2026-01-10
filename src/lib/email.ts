@@ -18,14 +18,14 @@ const getResendClient = () => {
 
 interface ApplicationEmailData {
   fullName: string;
-  tcNo: string;
-  email: string;
+  tcNo?: string;
+  email?: string;
   phone: string;
-  city: string;
-  district: string;
+  city?: string;
+  district?: string;
   address?: string;
-  plate: string;
-  brand: string;
+  plate?: string;
+  brand?: string;
   model?: string;
   year?: string;
   packageName: string;
@@ -188,11 +188,11 @@ export async function sendApplicationEmail(
                 </div>
                 <div class="info-row">
                   <div class="info-label">TC Kimlik No:</div>
-                  <div class="info-value">${applicationData.tcNo}</div>
+                  <div class="info-value">${applicationData.tcNo || "Belirtilmemiş"}</div>
                 </div>
                 <div class="info-row">
                   <div class="info-label">E-posta:</div>
-                  <div class="info-value">${applicationData.email}</div>
+                  <div class="info-value">${applicationData.email || "Belirtilmemiş"}</div>
                 </div>
                 <div class="info-row">
                   <div class="info-label">Telefon:</div>
@@ -204,11 +204,11 @@ export async function sendApplicationEmail(
                 <div class="section-title">Adres Bilgileri</div>
                 <div class="info-row">
                   <div class="info-label">Şehir:</div>
-                  <div class="info-value">${applicationData.city}</div>
+                  <div class="info-value">${applicationData.city || "Belirtilmemiş"}</div>
                 </div>
                 <div class="info-row">
                   <div class="info-label">İlçe:</div>
-                  <div class="info-value">${applicationData.district}</div>
+                  <div class="info-value">${applicationData.district || "Belirtilmemiş"}</div>
                 </div>
                 ${applicationData.address ? `
                 <div class="info-row">
@@ -223,13 +223,13 @@ export async function sendApplicationEmail(
                 <div class="info-row">
                   <div class="info-label">Plaka:</div>
                   <div class="info-value">
-                    ${applicationData.plate}
-                    <span class="badge">${applicationData.plate}</span>
+                    ${applicationData.plate || "Belirtilmemiş"}
+                    ${applicationData.plate ? `<span class="badge">${applicationData.plate}</span>` : ''}
                   </div>
                 </div>
                 <div class="info-row">
                   <div class="info-label">Marka:</div>
-                  <div class="info-value">${applicationData.brand}</div>
+                  <div class="info-value">${applicationData.brand || "Belirtilmemiş"}</div>
                 </div>
                 ${applicationData.model ? `
                 <div class="info-row">

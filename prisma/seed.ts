@@ -254,6 +254,98 @@ async function main() {
   }
   console.log("✅ Services created:", servicesData.length);
 
+  // Create initial slider items
+  const slidersData = [
+    {
+      category: "Otomobil",
+      title: "Yolda Kalmak Yok, Devam Etmek Var.",
+      description: "Binek araçlarınız için 7/24 çekici, yerinde akü ve lastik değişimi hizmeti. Ailenizle güvenle seyahat edin.",
+      image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1920&auto=format&fit=crop",
+      color: "blue",
+      stats: [
+        { icon: "Clock", label: "Ort. Varış", value: "18 Dk" },
+        { icon: "MapPin", label: "Hizmet Ağı", value: "81 İl" },
+        { icon: "Users", label: "Mutlu Müşteri", value: "10K+" },
+      ],
+      order: 1,
+    },
+    {
+      category: "Motosiklet",
+      title: "İki Teker Özgürlüktür, Biz Güvencesiyiz.",
+      description: "Motosikletlere özel aparatlı çekicilerimizle, motorunuzu çizmeden, devirmeden güvenle taşıyoruz.",
+      image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1920&auto=format&fit=crop",
+      color: "orange",
+      stats: [
+        { icon: "ShieldCheck", label: "Güvenlik", value: "%100" },
+        { icon: "Star", label: "Memnuniyet", value: "4.9/5" },
+        { icon: "Activity", label: "Operasyon", value: "7/24" },
+      ],
+      order: 2,
+    },
+    {
+      category: "Hafif Ticari",
+      title: "Esnafın Yükünü Hafifletiyoruz.",
+      description: "Doblo, Transporter ve Panelvan araçlarınız arızalandığında işiniz aksamasın. Hızlı müdahale ekibi hazır.",
+      image: "https://images.unsplash.com/photo-1656426650699-a76ffe479608?q=80&w=1920&auto=format&fit=crop",
+      color: "emerald",
+      stats: [
+        { icon: "Activity", label: "Yük Kapasitesi", value: "3.5 Ton" },
+        { icon: "Clock", label: "Müdahale", value: "Hızlı" },
+        { icon: "ShieldCheck", label: "Kasko", value: "Var" },
+      ],
+      order: 3,
+    },
+    {
+      category: "Ağır Ticari",
+      title: "Devler Yolda Kalmaz.",
+      description: "Tır, Kamyon ve Otobüs filoları için ağır hizmet kurtarıcılarımızla lojistik operasyonlarınız kesintisiz sürsün.",
+      image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1920&auto=format&fit=crop",
+      color: "slate",
+      stats: [
+        { icon: "MapPin", label: "Kapsama", value: "Tüm TR" },
+        { icon: "Users", label: "Filo Referans", value: "500+" },
+        { icon: "Activity", label: "Tonaj", value: "40 Ton" },
+      ],
+      order: 4,
+    },
+    {
+      category: "İkame Araç",
+      title: "Aracınız Servisteyken Konforunuz Sürsün.",
+      description: "Kaza veya arıza durumunda aracınız servisteyken size en uygun ikame aracı anında tahsis ediyoruz.",
+      image: "https://images.unsplash.com/photo-1550355291-bbee04a92027?q=80&w=1920&auto=format&fit=crop",
+      color: "violet",
+      stats: [
+        { icon: "Car", label: "Araç Filosu", value: "5000+" },
+        { icon: "Clock", label: "Teslimat", value: "Anında" },
+        { icon: "ShieldCheck", label: "Kasko", value: "Full" },
+      ],
+      order: 5,
+    },
+    {
+      category: "Moto Karavan",
+      title: "Tatil Keyfiniz Yarıda Kalmasın.",
+      description: "Karavan tutkunlarına özel yol yardım. Tatil rotanız neresi olursa olsun, BGC Assist orada.",
+      image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?q=80&w=1920&auto=format&fit=crop",
+      color: "amber",
+      stats: [
+        { icon: "MapPin", label: "Bölge", value: "Tüm Kıyılar" },
+        { icon: "Activity", label: "Çekici Tipi", value: "Özel" },
+        { icon: "Star", label: "Puan", value: "5.0" },
+      ],
+      order: 6,
+    },
+  ];
+
+  // Delete existing sliders and create new ones
+  await prisma.sliderItem.deleteMany({});
+  
+  for (const slider of slidersData) {
+    await prisma.sliderItem.create({
+      data: slider,
+    });
+  }
+  console.log("✅ Sliders created:", slidersData.length);
+
   // Create initial site settings
   const settingsData = [
     { key: "phone", value: "0530 232 27 42", type: "text", group: "contact" },

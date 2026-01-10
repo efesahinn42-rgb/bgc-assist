@@ -91,10 +91,12 @@ export default function ApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [deleteModal, setDeleteModal] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [stats, setStats] = useState<Statistics | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [isPageVisible, setIsPageVisible] = useState(true);
   const [isPageFocused, setIsPageFocused] = useState(true);
+  const [lastCheckTime, setLastCheckTime] = useState<string | null>(null);
 
   useEffect(() => {
     if (authStatus === "unauthenticated") {
@@ -144,8 +146,11 @@ export default function ApplicationsPage() {
     }
   }, []);
 
-  const fetchApplications = useCallback(async () => {
-    setLoading(true);
+  const fetchApplications = useCallback(async (isPolling: boolean = false) => {
+    // Polling sırasında loading state'i gösterme (kullanıcı deneyimini bozmamak için)
+    if (!isPolling) {
+      setLoading(true);
+    }
     try {
       const params = new URLSearchParams({
         page: pagination.page.toString(),
@@ -155,42 +160,87 @@ export default function ApplicationsPage() {
       if (search) {
         params.append("search", search);
       }
+      
+      // Polling sırasında lastCheck parametresini ekle
+      if (isPolling && lastCheckTime) {
+        params.append("lastCheck", lastCheckTime);
+      }
 
       const res = await fetch(`/api/applications?${params}`);
       if (res.ok) {
         const data = await res.json();
-        setApplications(data.applications);
-        setPagination(data.pagination);
+        
+        // Polling sırasında sadece yeni veri varsa güncelle
+        if (isPolling) {
+          if (data.hasNewData && data.applications.length > 0) {
+            // Yeni başvuruları mevcut listeye ekle (en üste)
+            setApplications(prev => [...data.applications, ...prev]);
+            // Pagination'ı güncelle
+            setPagination(prev => ({
+              ...prev,
+              total: data.pagination.total,
+              totalPages: data.pagination.totalPages,
+            }));
+          }
+          // Her polling'de lastCheckTime'ı güncelle
+          setLastCheckTime(new Date().toISOString());
+        } else {
+          // Normal fetch (sayfa yükleme, filtre değişikliği, vb.)
+          setApplications(data.applications);
+          setPagination(data.pagination);
+          // İlk yüklemede lastCheckTime'ı set et
+          if (!lastCheckTime) {
+            setLastCheckTime(new Date().toISOString());
+          }
+        }
       }
     } catch (error) {
       console.error("Error fetching applications:", error);
     } finally {
-      setLoading(false);
+      if (!isPolling) {
+        setLoading(false);
+      }
     }
-  }, [pagination.page, pagination.limit, statusFilter, search]);
+  }, [pagination.page, pagination.limit, statusFilter, search, lastCheckTime]);
 
+  // İlk yükleme - paralel fetch
   useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications]);
-
-  useEffect(() => {
-    if (session) {
-      fetchStatistics();
+    if (session && authStatus === "authenticated") {
+      // İlk yüklemede applications ve statistics'i paralel çek
+      Promise.all([
+        fetchApplications(false),
+        fetchStatistics()
+      ]);
+    } else {
+      // Session yoksa sadece applications'ı çek (statistics zaten auth gerektirir)
+      fetchApplications(false);
     }
-  }, [session, fetchStatistics]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Polling mekanizması - sadece sayfa görünür ve focus'tayken çalışır
+  // Pagination veya filter değiştiğinde fetch (lastCheckTime'ı sıfırla)
+  useEffect(() => {
+    if (lastCheckTime !== null) {
+      // İlk yükleme değilse, lastCheckTime'ı sıfırla ve fetch yap
+      setLastCheckTime(null);
+      fetchApplications(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, statusFilter]);
+
+  // Polling mekanizması - sadece sayfa görünür, focus'ta ve işlem yapılmazken çalışır
   useEffect(() => {
     if (!session || authStatus !== "authenticated") return;
 
-    // Polling sadece sayfa görünür ve focus'tayken aktif
-    const shouldPoll = isPageVisible && isPageFocused;
+    // Polling sadece sayfa görünür, focus'ta ve işlem yapılmazken aktif
+    const shouldPoll = isPageVisible && isPageFocused && !deleteModal && !isExporting && !isProcessing;
 
     if (!shouldPoll) return;
 
-    // İlk fetch'i hemen yap
+    // İlk fetch'i hemen yap (polling olarak)
     const fetchData = () => {
-      fetchApplications();
+      fetchApplications(true); // Polling modunda
+      // Statistics'i sadece yeni veri varsa güncelle (opsiyonel - şimdilik her zaman güncelle)
       fetchStatistics();
     };
 
@@ -200,11 +250,12 @@ export default function ApplicationsPage() {
     return () => {
       clearInterval(intervalId);
     };
-  }, [session, authStatus, isPageVisible, isPageFocused, fetchApplications, fetchStatistics]);
+  }, [session, authStatus, isPageVisible, isPageFocused, deleteModal, isExporting, isProcessing, fetchApplications, fetchStatistics]);
 
   const handleSearch = () => {
     setPagination(prev => ({ ...prev, page: 1 }));
-    fetchApplications();
+    setLastCheckTime(null); // Arama yapıldığında lastCheckTime'ı sıfırla
+    fetchApplications(false);
   };
 
   const handleExport = async () => {
@@ -231,6 +282,7 @@ export default function ApplicationsPage() {
   };
 
   const handleDelete = async (id: string) => {
+    setIsProcessing(true);
     try {
       const res = await fetch(`/api/applications/${id}`, { method: "DELETE" });
       if (res.ok) {
@@ -240,10 +292,13 @@ export default function ApplicationsPage() {
       }
     } catch (error) {
       console.error("Error deleting:", error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const updateStatus = async (id: string, newStatus: string) => {
+    setIsProcessing(true);
     try {
       const res = await fetch(`/api/applications/${id}`, {
         method: "PUT",
@@ -256,6 +311,8 @@ export default function ApplicationsPage() {
       }
     } catch (error) {
       console.error("Error updating status:", error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -474,6 +531,7 @@ export default function ApplicationsPage() {
               onChange={(e) => {
                 setStatusFilter(e.target.value);
                 setPagination(prev => ({ ...prev, page: 1 }));
+                setLastCheckTime(null); // Filter değiştiğinde lastCheckTime'ı sıfırla
               }}
               className="px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none bg-white dark:bg-gray-800 dark:text-white min-h-[44px] text-base"
             >

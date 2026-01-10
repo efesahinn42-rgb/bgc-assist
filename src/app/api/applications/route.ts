@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
+    const lastCheck = searchParams.get("lastCheck"); // ISO timestamp
 
     const where: Record<string, unknown> = {};
     
@@ -37,6 +38,63 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    // Eğer lastCheck varsa, sadece yeni başvuruları getir
+    const whereForNew = { ...where };
+    let lastCheckDate: Date | null = null;
+    if (lastCheck) {
+      try {
+        lastCheckDate = new Date(lastCheck);
+        whereForNew.createdAt = { gt: lastCheckDate };
+      } catch (error) {
+        // Geçersiz timestamp, tüm verileri getir
+        console.error("Invalid lastCheck timestamp:", error);
+        lastCheckDate = null;
+      }
+    }
+
+    // Polling modunda (lastCheck varsa) önce yeni veri kontrolü yap
+    if (lastCheck && lastCheckDate) {
+      // Önce sadece count kontrolü yap (daha hızlı)
+      const newCount = await prisma.application.count({ where: whereForNew });
+      
+      if (newCount === 0) {
+        // Yeni veri yok, gereksiz query'leri atla
+        return NextResponse.json({
+          applications: [],
+          pagination: {
+            page,
+            limit,
+            total: await prisma.application.count({ where }), // Total count hala gerekli
+            totalPages: Math.ceil((await prisma.application.count({ where })) / limit),
+          },
+          hasNewData: false,
+          newCount: 0,
+        });
+      }
+
+      // Yeni veri var, sadece yeni başvuruları getir
+      const applications = await prisma.application.findMany({
+        where: whereForNew,
+        orderBy: { createdAt: "desc" },
+        take: 100, // Max 100 yeni başvuru
+      });
+
+      const total = await prisma.application.count({ where });
+
+      return NextResponse.json({
+        applications,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+        hasNewData: true,
+        newCount,
+      });
+    }
+
+    // Normal mod (lastCheck yok) - tüm query'leri çalıştır
     const [applications, total] = await Promise.all([
       prisma.application.findMany({
         where,
@@ -47,6 +105,8 @@ export async function GET(request: NextRequest) {
       prisma.application.count({ where }),
     ]);
 
+    const hasNewData = applications.length > 0;
+
     return NextResponse.json({
       applications,
       pagination: {
@@ -55,6 +115,8 @@ export async function GET(request: NextRequest) {
         total,
         totalPages: Math.ceil(total / limit),
       },
+      hasNewData,
+      newCount: lastCheck ? newCount : applications.length,
     });
   } catch (error) {
     console.error("Error fetching applications:", error);
@@ -70,8 +132,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Validate required fields
-    const requiredFields = ["fullName", "tcNo", "email", "phone", "city", "district", "plate", "brand", "packageName"];
+    // Validate required fields (only fullName, phone, packageName are required)
+    const requiredFields = ["fullName", "phone", "packageName"];
     for (const field of requiredFields) {
       if (!body[field]) {
         return NextResponse.json(
@@ -79,14 +141,6 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-    }
-
-    // Validate TC number
-    if (body.tcNo.length !== 11) {
-      return NextResponse.json(
-        { error: "TC Kimlik numarası 11 haneli olmalıdır" },
-        { status: 400 }
-      );
     }
 
     // Validate phone
@@ -97,17 +151,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Optional: Validate TC number if provided
+    if (body.tcNo && body.tcNo.length !== 11) {
+      return NextResponse.json(
+        { error: "TC Kimlik numarası 11 haneli olmalıdır" },
+        { status: 400 }
+      );
+    }
+
     const newApplication = await prisma.application.create({
       data: {
         fullName: body.fullName,
-        tcNo: body.tcNo,
-        email: body.email,
+        tcNo: body.tcNo || null,
+        email: body.email || null,
         phone: body.phone,
-        city: body.city,
-        district: body.district,
+        city: body.city || null,
+        district: body.district || null,
         address: body.address || null,
-        plate: body.plate.toUpperCase(),
-        brand: body.brand,
+        plate: body.plate ? body.plate.toUpperCase() : null,
+        brand: body.brand || null,
         model: body.model || null,
         year: body.year || null,
         packageName: body.packageName,
