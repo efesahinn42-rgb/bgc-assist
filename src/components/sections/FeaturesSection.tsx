@@ -82,7 +82,7 @@ export function FeaturesSection() {
             Neden Biz?
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-brand-black mb-6">
-            Neden <span className="text-brand-red">BGCAssist</span>'i Seçmelisiniz?
+            Neden <span className="text-brand-red">BGC Assist</span>'i Seçmelisiniz?
           </h2>
           <p className="text-brand-gray text-lg max-w-2xl mx-auto">
             Yılların deneyimi ve müşteri odaklı yaklaşımımızla yol yardım hizmetlerinde fark yaratıyoruz.

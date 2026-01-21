@@ -43,7 +43,7 @@ export function Footer() {
   ].filter(link => link.href); // Only show links that have URLs
 
   // Footer phone number is hardcoded (not from settings)
-  const footerPhone = "0530 232 27 42";
+  const footerPhone = "0850 888 0 155";
   const phoneLink = footerPhone.replace(/\s/g, "");
 
   const handleScrollToTop = () => {

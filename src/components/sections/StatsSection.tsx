@@ -214,7 +214,7 @@ export function StatsSection() {
             Rakamlarla
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-brand-black mb-4">
-            Neden <span className="text-brand-red">BGCAssist</span>?
+            Neden <span className="text-brand-red">BGC Assist</span>?
           </h2>
           <p className="text-brand-gray max-w-xl mx-auto leading-relaxed">
             Yılların deneyimi ve binlerce müşterinin güveni ile hizmetinizdeyiz.

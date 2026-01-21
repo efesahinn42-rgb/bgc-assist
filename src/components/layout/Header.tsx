@@ -5,8 +5,6 @@ import { Phone, Menu, X, User, AlertTriangle, Home, Wrench, Package, Info, Mail 
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getDefaultPackage } from "@/lib/packages-data";
-import { usePurchaseModal } from "@/context/PurchaseModalContext";
 import { useSettings } from "@/lib/settings-context";
 
 const navLinks = [
@@ -20,7 +18,6 @@ const navLinks = [
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { openModal } = usePurchaseModal();
   const { settings } = useSettings();
 
   // Format phone for tel: links (remove spaces)
@@ -29,6 +26,10 @@ export function Header() {
   // Hasar İhbar Hattı phone number (hardcoded)
   const hasarIhbarPhone = "0850 242 0 155";
   const hasarIhbarLink = hasarIhbarPhone.replace(/\s/g, "");
+  
+  // Yardım Al phone number (hardcoded)
+  const yardimAlPhone = "0850 888 0 155";
+  const yardimAlLink = yardimAlPhone.replace(/\s/g, "");
 
   const handleScroll = useCallback(() => {
     setIsScrolled(window.scrollY > 50);
@@ -39,11 +40,18 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  const handleYardimAlClick = () => {
-    const defaultPackage = getDefaultPackage();
-    openModal(defaultPackage);
-    setIsMenuOpen(false); // Close mobile menu if open
-  };
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMenuOpen]);
+
 
   const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     // If it's the home page link and we're already on home, scroll to top
@@ -135,15 +143,15 @@ export function Header() {
                 <span className="font-bold text-brand-white">{hasarIhbarPhone}</span>
               </div>
             </a>
-            <Button 
-              className="bg-brand-red hover:bg-brand-red-dark text-brand-white px-6 py-5 text-base font-semibold cursor-pointer"
-              onClick={handleYardimAlClick}
+            <a
+              href={`tel:+90${yardimAlLink}`}
+              className="bg-brand-red hover:bg-brand-red-dark text-brand-white px-5 py-2.5 text-sm font-semibold cursor-pointer rounded-lg transition-colors inline-flex items-center justify-center min-h-[44px]"
             >
               Yardım Al
-            </Button>
+            </a>
             <Link href="https://bgcassist.sistempartner.com/Account/Login" target="_blank" rel="noopener noreferrer">
               <Button 
-                className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white px-6 py-5 text-base font-semibold backdrop-blur-sm cursor-pointer"
+                className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white px-5 py-2.5 text-sm font-semibold backdrop-blur-sm cursor-pointer min-h-[44px]"
               >
                 <User className="w-4 h-4 mr-2" />
                 Bayi Girişi
@@ -166,12 +174,13 @@ export function Header() {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-brand-black/98 backdrop-blur-md border-t border-brand-white/10"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="lg:hidden fixed inset-0 top-16 z-40 bg-brand-black/98 backdrop-blur-md overflow-y-auto"
           >
-            <nav className="container mx-auto px-4 py-6 flex flex-col gap-2">
+            <nav className="container mx-auto px-4 py-6 flex flex-col gap-2 max-h-[calc(100vh-4rem)]">
               {navLinks.map((link, index) => {
                 const Icon = link.icon;
                 return (
@@ -200,7 +209,7 @@ export function Header() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: navLinks.length * 0.1 }}
-                className="pt-4 space-y-4"
+                className="pt-4 pb-6 space-y-4"
               >
                 <a
                   href={`tel:+90${phoneLink}`}
@@ -226,12 +235,13 @@ export function Header() {
                     <span className="font-bold text-lg">{hasarIhbarPhone}</span>
                   </div>
                 </a>
-                <Button 
-                  className="bg-brand-red hover:bg-brand-red-dark text-brand-white w-full py-6 text-lg font-semibold cursor-pointer"
-                  onClick={handleYardimAlClick}
+                <a
+                  href={`tel:+90${yardimAlLink}`}
+                  className="bg-brand-red hover:bg-brand-red-dark text-brand-white w-full py-6 text-lg font-semibold cursor-pointer rounded-lg transition-colors inline-flex items-center justify-center"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   Yardım Al
-                </Button>
+                </a>
                 <Link href="https://bgcassist.sistempartner.com/Account/Login" target="_blank" rel="noopener noreferrer" className="block">
                   <Button 
                     className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white w-full py-6 text-lg font-semibold backdrop-blur-sm cursor-pointer"

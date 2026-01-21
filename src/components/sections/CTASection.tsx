@@ -19,6 +19,10 @@ export function CTASection() {
 
   // Format phone for tel: links (remove spaces)
   const phoneLink = settings.phone.replace(/\s/g, "");
+  
+  // Online Yardım Talebi phone number (hardcoded)
+  const onlineYardimPhone = "0850 888 0 155";
+  const onlineYardimLink = onlineYardimPhone.replace(/\s/g, "");
 
   const handleOpenPurchaseModal = () => {
     const defaultPackage = getDefaultPackage();
@@ -111,20 +115,19 @@ export function CTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
           >
-            <Button
-              size="lg"
-              className="bg-brand-red hover:bg-brand-red-dark text-brand-white text-base sm:text-lg px-6 sm:px-8 py-6 sm:py-7 font-semibold shadow-lg shadow-brand-red/30 min-h-[44px] touch-manipulation"
-              onClick={handleOpenPurchaseModal}
+            <a
+              href={`tel:+90${onlineYardimLink}`}
+              className="inline-flex items-center justify-center bg-brand-red hover:bg-brand-red-dark text-brand-white text-sm sm:text-base px-5 sm:px-6 py-3 sm:py-4 font-semibold shadow-md shadow-brand-red/30 h-[44px] touch-manipulation rounded-lg transition-all duration-300"
             >
               Online Yardım Talebi
               <ChevronRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
+            </a>
             <Button
               size="lg"
               variant="outline"
-              className="border-2 border-brand-white bg-brand-white/10 text-brand-white hover:bg-brand-white hover:text-brand-black text-base sm:text-lg px-6 sm:px-8 py-6 sm:py-7 font-semibold backdrop-blur-sm min-h-[44px] touch-manipulation"
+              className="border-2 border-brand-white bg-brand-white/10 text-brand-white hover:bg-brand-white hover:text-brand-black text-sm sm:text-base px-5 sm:px-6 py-3 sm:py-4 font-semibold backdrop-blur-sm h-[44px] touch-manipulation"
               onClick={handleOpenPurchaseModal}
             >
               Paket Satın Al
