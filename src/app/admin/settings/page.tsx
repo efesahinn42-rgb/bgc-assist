@@ -37,7 +37,7 @@ interface Settings {
 
 const initialSettings: Settings = {
   phone: "0850 888 0 155",
-  email: "info@bgcassist.com",
+  email: "info@bgcfilo.com.tr",
   whatsapp: "905302322742",
   address: "Akabe, Şht. Furkan Doğan Cd. Bey Plaza Kat:1 No:3/122, 42020 Karatay/Konya",
   city: "Konya",

@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
         const settings = await prisma.siteSetting.findUnique({
           where: { key: "email" },
         });
-        companyEmail = settings?.value || "info@bgcassist.com";
+        companyEmail = settings?.value || "info@bgcfilo.com.tr";
         logger.info("Production mode: Sending email", { email: companyEmail });
       }
 
