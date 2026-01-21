@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { prisma } from "./prisma";
 
 // Resend client'ı oluştur (API key kontrolü ile)
 const getResendClient = () => {
@@ -43,13 +44,40 @@ export async function sendApplicationEmail(
       throw new Error("RESEND_API_KEY environment variable bulunamadı");
     }
 
+    // From email belirleme: Öncelik sırası
+    // 1. FROM_EMAIL environment variable
+    // 2. Veritabanından fromEmail setting
+    // 3. Fallback: onboarding@resend.dev (test modu)
+    let fromEmail: string;
+    
+    if (process.env.FROM_EMAIL) {
+      fromEmail = process.env.FROM_EMAIL;
+      console.log(`📧 From email (environment variable): ${fromEmail}`);
+    } else {
+      try {
+        const fromEmailSetting = await prisma.siteSetting.findUnique({
+          where: { key: "fromEmail" },
+        });
+        if (fromEmailSetting?.value) {
+          fromEmail = fromEmailSetting.value;
+          console.log(`📧 From email (database setting): ${fromEmail}`);
+        } else {
+          fromEmail = "onboarding@resend.dev";
+          console.log(`📧 From email (fallback): ${fromEmail}`);
+        }
+      } catch (error) {
+        // Veritabanı hatası durumunda fallback kullan
+        fromEmail = "onboarding@resend.dev";
+        console.warn("⚠️ Veritabanından fromEmail alınamadı, fallback kullanılıyor:", fromEmail);
+      }
+    }
+    
     // Test modu kontrolü: onboarding@resend.dev ile sadece kendi email adresinize gönderebilirsiniz
-    const fromEmail = "onboarding@resend.dev";
     const isTestMode = !process.env.TEST_EMAIL || process.env.TEST_EMAIL === companyEmail;
     
     if (fromEmail === "onboarding@resend.dev" && !isTestMode) {
       console.warn("⚠️ Resend test domain'i (onboarding@resend.dev) ile sadece kendi email adresinize gönderebilirsiniz.");
-      console.warn("⚠️ TEST_EMAIL environment variable'ını Vercel'e ekleyin veya Resend'de domain verify edin.");
+      console.warn("⚠️ FROM_EMAIL environment variable'ını Vercel'e ekleyin veya Resend'de domain verify edin.");
     }
 
     console.log(`📧 Email gönderiliyor: ${companyEmail}`);
