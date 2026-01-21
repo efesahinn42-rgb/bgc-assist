@@ -50,17 +50,35 @@ export async function sendApplicationEmail(
     // 3. Fallback: onboarding@resend.dev (test modu)
     let fromEmail: string;
     
+    // Email format validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidEmail = (email: string): boolean => {
+      return emailRegex.test(email);
+    };
+    
     if (process.env.FROM_EMAIL) {
-      fromEmail = process.env.FROM_EMAIL;
-      console.log(`📧 From email (environment variable): ${fromEmail}`);
+      const envFromEmail = process.env.FROM_EMAIL.trim();
+      if (isValidEmail(envFromEmail)) {
+        fromEmail = envFromEmail;
+        console.log(`📧 From email (environment variable): ${fromEmail}`);
+      } else {
+        console.warn(`⚠️ FROM_EMAIL environment variable geçersiz format: "${envFromEmail}". Fallback kullanılıyor.`);
+        fromEmail = "onboarding@resend.dev";
+      }
     } else {
       try {
         const fromEmailSetting = await prisma.siteSetting.findUnique({
           where: { key: "fromEmail" },
         });
         if (fromEmailSetting?.value) {
-          fromEmail = fromEmailSetting.value;
-          console.log(`📧 From email (database setting): ${fromEmail}`);
+          const dbFromEmail = fromEmailSetting.value.trim();
+          if (isValidEmail(dbFromEmail)) {
+            fromEmail = dbFromEmail;
+            console.log(`📧 From email (database setting): ${fromEmail}`);
+          } else {
+            console.warn(`⚠️ Veritabanındaki fromEmail geçersiz format: "${dbFromEmail}". Fallback kullanılıyor.`);
+            fromEmail = "onboarding@resend.dev";
+          }
         } else {
           fromEmail = "onboarding@resend.dev";
           console.log(`📧 From email (fallback): ${fromEmail}`);
