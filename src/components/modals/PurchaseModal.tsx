@@ -662,7 +662,7 @@ export function PurchaseModal() {
                 <p className="text-sm text-brand-gray mb-2">
                   Müşteri temsilcimiz en kısa sürede sizi arayacaktır.
                 </p>
-                <p className="text-lg font-bold text-brand-red">{settings.phone}</p>
+                <p className="text-lg font-bold text-brand-red">0530 232 27 42</p>
               </div>
               
               <Button

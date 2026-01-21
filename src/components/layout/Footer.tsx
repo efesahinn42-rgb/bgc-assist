@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, ChevronRight, Clock } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, ChevronRight, ChevronUp, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSettings } from "@/lib/settings-context";
 
@@ -11,7 +11,7 @@ const quickLinks = [
   { href: "#packages", label: "Paketler" },
   { href: "#about", label: "Hakkımızda" },
   { href: "#contact", label: "İletişim" },
-  { href: "/bayi-girisi", label: "Bayi Girişi" },
+  { href: "https://bgcassist.sistempartner.com/Account/Login", label: "Bayi Girişi" },
   { href: "/sss", label: "Sık Sorulan Sorular" },
 ];
 
@@ -42,11 +42,26 @@ export function Footer() {
     { icon: Linkedin, href: settings.linkedin, label: "LinkedIn" },
   ].filter(link => link.href); // Only show links that have URLs
 
-  // Format phone for tel: link
-  const phoneLink = settings.phone.replace(/\s/g, "");
+  // Footer phone number is hardcoded (not from settings)
+  const footerPhone = "0530 232 27 42";
+  const phoneLink = footerPhone.replace(/\s/g, "");
+
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
-    <footer id="contact" className="bg-brand-black text-brand-white">
+    <footer id="contact" className="bg-brand-black text-brand-white relative">
+      {/* Başa Dön Button */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+        <button
+          onClick={handleScrollToTop}
+          className="bg-brand-red hover:bg-brand-red-dark text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation"
+          aria-label="Başa Dön"
+        >
+          <ChevronUp className="w-6 h-6" />
+        </button>
+      </div>
       {/* Newsletter Section */}
       <div className="border-b border-brand-white/10">
         <div className="container mx-auto px-4 lg:px-8 py-12">
@@ -77,20 +92,19 @@ export function Footer() {
             <Link href="/" className="inline-flex items-center">
               <div className="relative h-12 w-auto flex items-center">
                 <Image
-                  src="/logo.png"
+                  src="/logos/logo-assist.png"
                   alt="BGCAssist Logo"
                   width={0}
                   height={0}
                   sizes="200px"
                   className="h-12 w-auto object-contain"
-                  priority
                 />
               </div>
             </Link>
             <p className="text-brand-white/60 leading-relaxed">
               Türkiye&apos;nin en güvenilir yol yardım hizmeti. 7/24 kesintisiz hizmet anlayışıyla her zaman yanınızdayız.
             </p>
-            
+
             {/* Working Hours Badge */}
             <div className="inline-flex items-center gap-2 bg-brand-red/20 rounded-lg px-4 py-3">
               <Clock className="w-5 h-5 text-brand-red" />
@@ -125,13 +139,27 @@ export function Footer() {
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-brand-white/60 hover:text-brand-red transition-colors flex items-center gap-2 group"
-                  >
-                    <ChevronRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                    {link.label}
-                  </Link>
+                  {link.href.startsWith('http') ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      suppressHydrationWarning
+                      className="text-brand-white/60 hover:text-brand-red transition-colors flex items-center gap-2 group"
+                    >
+                      <ChevronRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      suppressHydrationWarning
+                      className="text-brand-white/60 hover:text-brand-red transition-colors flex items-center gap-2 group"
+                    >
+                      <ChevronRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -158,6 +186,7 @@ export function Footer() {
             <div className="space-y-4">
               <a
                 href={`tel:+90${phoneLink}`}
+                suppressHydrationWarning
                 className="flex items-start gap-3 text-brand-white/60 hover:text-brand-white transition-colors group"
               >
                 <div className="w-10 h-10 rounded-lg bg-brand-red/20 flex items-center justify-center flex-shrink-0 group-hover:bg-brand-red transition-colors">
@@ -165,12 +194,13 @@ export function Footer() {
                 </div>
                 <div>
                   <div className="text-xs text-brand-white/40 mb-1">Çağrı Merkezi</div>
-                  <div className="font-semibold text-brand-white">{settings.phone}</div>
+                  <div className="font-semibold text-brand-white">{footerPhone}</div>
                 </div>
               </a>
 
               <a
                 href={`mailto:${settings.email}`}
+                suppressHydrationWarning
                 className="flex items-start gap-3 text-brand-white/60 hover:text-brand-white transition-colors group"
               >
                 <div className="w-10 h-10 rounded-lg bg-brand-red/20 flex items-center justify-center flex-shrink-0 group-hover:bg-brand-red transition-colors">
@@ -213,6 +243,7 @@ export function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  suppressHydrationWarning
                   className="text-brand-white/50 hover:text-brand-white text-sm transition-colors"
                 >
                   {link.label}

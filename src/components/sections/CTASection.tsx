@@ -34,10 +34,10 @@ export function CTASection() {
           backgroundImage: "url('https://images.unsplash.com/photo-1742069029207-0aacf8fa4401?q=80&w=2070&auto=format&fit=crop')",
         }}
       />
-      
+
       {/* Overlay */}
       <div className="absolute inset-0 bg-brand-black/85" />
-      
+
       {/* Pattern Overlay */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
@@ -78,7 +78,7 @@ export function CTASection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg md:text-xl text-brand-white/80 mb-10 max-w-2xl mx-auto"
           >
-            Tek bir arama ile profesyonel ekibimiz dakikalar içinde yanınızda. 
+            Tek bir arama ile profesyonel ekibimiz dakikalar içinde yanınızda.
             Hemen arayın, yardım gelsin.
           </motion.p>
 
@@ -92,6 +92,7 @@ export function CTASection() {
           >
             <a
               href={`tel:+90${phoneLink}`}
+              suppressHydrationWarning
               className="inline-flex items-center gap-4 bg-brand-white rounded-2xl px-8 py-5 shadow-2xl hover:shadow-brand-red/20 transition-all duration-300 hover:-translate-y-1 group"
             >
               <div className="w-14 h-14 rounded-xl bg-brand-red flex items-center justify-center group-hover:scale-110 transition-transform duration-300">

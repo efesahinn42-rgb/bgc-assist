@@ -1,20 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { Phone, Menu, X, User } from "lucide-react";
+import { Phone, Menu, X, User, AlertTriangle, Home, Wrench, Package, Info, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getDefaultPackage } from "@/lib/packages-data";
 import { usePurchaseModal } from "@/context/PurchaseModalContext";
 import { useSettings } from "@/lib/settings-context";
 
 const navLinks = [
-  { href: "#services", label: "Hizmetler" },
-  { href: "#packages", label: "Paketler" },
-  { href: "#about", label: "Hakkımızda" },
-  { href: "#contact", label: "İletişim" },
+  { href: "/", label: "Anasayfa", icon: Home },
+  { href: "#services", label: "Hizmetler", icon: Wrench },
+  { href: "#packages", label: "Paketler", icon: Package },
+  { href: "#about", label: "Hakkımızda", icon: Info },
+  { href: "#contact", label: "İletişim", icon: Mail },
 ];
 
 export function Header() {
@@ -25,21 +25,56 @@ export function Header() {
 
   // Format phone for tel: links (remove spaces)
   const phoneLink = settings.phone.replace(/\s/g, "");
+  
+  // Hasar İhbar Hattı phone number (hardcoded)
+  const hasarIhbarPhone = "0850 242 0 155";
+  const hasarIhbarLink = hasarIhbarPhone.replace(/\s/g, "");
+
+  const handleScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > 50);
+  }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [handleScroll]);
 
   const handleYardimAlClick = () => {
     const defaultPackage = getDefaultPackage();
     openModal(defaultPackage);
     setIsMenuOpen(false); // Close mobile menu if open
   };
+
+  const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // If it's the home page link and we're already on home, scroll to top
+    if (href === "/") {
+      if (window.location.pathname === "/") {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setIsMenuOpen(false);
+      }
+      // Otherwise, let Next.js Link handle navigation
+      return;
+    }
+
+    // Handle hash links (#services, #packages, etc.)
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const targetId = href.substring(1);
+      
+      // If we're on the home page, scroll to the element
+      if (window.location.pathname === "/") {
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+          setIsMenuOpen(false);
+        }
+      } else {
+        // If we're on a different page, navigate to home with hash
+        window.location.href = `/${href}`;
+      }
+    }
+  }, []);
 
   return (
     <header
@@ -51,37 +86,27 @@ export function Header() {
     >
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center group">
-            <div className="relative h-14 md:h-16 w-auto flex items-center">
-              <Image
-                src="/logo.png"
-                alt="BGCAssist Logo"
-                width={0}
-                height={0}
-                sizes="(max-width: 768px) 160px, 200px"
-                className="h-14 md:h-16 w-auto object-contain"
-                style={{ 
-                  mixBlendMode: 'multiply',
-                  filter: 'contrast(1.1) brightness(1.05)'
-                }}
-                priority
-              />
-            </div>
-          </Link>
+          {/* Logo placeholder - Logo artık slider içinde */}
+          <div className="h-14 md:h-16 w-auto"></div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-brand-white/90 hover:text-brand-red transition-colors font-medium relative group"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-red transition-all duration-300 group-hover:w-full" />
-              </Link>
-            ))}
+          <nav className="hidden lg:flex items-center gap-4 ml-40">
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
+                  className="text-brand-white/90 hover:text-brand-red transition-colors font-medium relative group flex items-center gap-2"
+                  aria-label={link.label}
+                >
+                  <Icon className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {link.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-red transition-all duration-300 group-hover:w-full" />
+                </Link>
+              );
+            })}
           </nav>
 
           {/* CTA Section */}
@@ -91,22 +116,34 @@ export function Header() {
               className="flex items-center gap-2 text-brand-white group"
             >
               <div className="w-10 h-10 rounded-full bg-brand-red/20 flex items-center justify-center group-hover:bg-brand-red transition-colors">
-                <Phone className="w-5 h-5 text-brand-red group-hover:text-brand-white transition-colors" />
+                <Phone className="w-5 h-5 text-brand-red group-hover:text-white transition-colors" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xs text-brand-white/60">Hemen Ara</span>
                 <span className="font-bold text-brand-white">{settings.phone}</span>
               </div>
             </a>
+            <a
+              href={`tel:+90${hasarIhbarLink}`}
+              className="flex items-center gap-2 text-brand-white group"
+            >
+              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center group-hover:bg-amber-500 transition-colors">
+                <AlertTriangle className="w-5 h-5 text-amber-500 group-hover:text-white transition-colors" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-brand-white/60">Hasar İhbar Hattı</span>
+                <span className="font-bold text-brand-white">{hasarIhbarPhone}</span>
+              </div>
+            </a>
             <Button 
-              className="bg-brand-red hover:bg-brand-red-dark text-brand-white px-6 py-5 text-base font-semibold"
+              className="bg-brand-red hover:bg-brand-red-dark text-brand-white px-6 py-5 text-base font-semibold cursor-pointer"
               onClick={handleYardimAlClick}
             >
               Yardım Al
             </Button>
-            <Link href="#">
+            <Link href="https://bgcassist.sistempartner.com/Account/Login" target="_blank" rel="noopener noreferrer">
               <Button 
-                className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white px-6 py-5 text-base font-semibold backdrop-blur-sm"
+                className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white px-6 py-5 text-base font-semibold backdrop-blur-sm cursor-pointer"
               >
                 <User className="w-4 h-4 mr-2" />
                 Bayi Girişi
@@ -135,22 +172,30 @@ export function Header() {
             className="lg:hidden bg-brand-black/98 backdrop-blur-md border-t border-brand-white/10"
           >
             <nav className="container mx-auto px-4 py-6 flex flex-col gap-2">
-              {navLinks.map((link, index) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Link
-                    href={link.href}
-                    className="text-brand-white/90 hover:text-brand-red transition-colors font-medium py-3 block border-b border-brand-white/10"
-                    onClick={() => setIsMenuOpen(false)}
+              {navLinks.map((link, index) => {
+                const Icon = link.icon;
+                return (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
                   >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
+                    <Link
+                      href={link.href}
+                      onClick={(e) => {
+                        handleNavClick(e, link.href);
+                        setIsMenuOpen(false);
+                      }}
+                      className="text-brand-white/90 hover:text-brand-red transition-colors font-medium py-3 block border-b border-brand-white/10 flex items-center gap-3"
+                      aria-label={link.label}
+                    >
+                      <Icon className="w-5 h-5" />
+                      {link.label}
+                    </Link>
+                  </motion.div>
+                );
+              })}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -169,15 +214,27 @@ export function Header() {
                     <span className="font-bold text-lg">{settings.phone}</span>
                   </div>
                 </a>
+                <a
+                  href={`tel:+90${hasarIhbarLink}`}
+                  className="flex items-center gap-3 text-brand-white"
+                >
+                  <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs text-brand-white/60">Hasar İhbar Hattı</span>
+                    <span className="font-bold text-lg">{hasarIhbarPhone}</span>
+                  </div>
+                </a>
                 <Button 
-                  className="bg-brand-red hover:bg-brand-red-dark text-brand-white w-full py-6 text-lg font-semibold"
+                  className="bg-brand-red hover:bg-brand-red-dark text-brand-white w-full py-6 text-lg font-semibold cursor-pointer"
                   onClick={handleYardimAlClick}
                 >
                   Yardım Al
                 </Button>
-                <Link href="#" className="block">
+                <Link href="https://bgcassist.sistempartner.com/Account/Login" target="_blank" rel="noopener noreferrer" className="block">
                   <Button 
-                    className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white w-full py-6 text-lg font-semibold backdrop-blur-sm"
+                    className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white w-full py-6 text-lg font-semibold backdrop-blur-sm cursor-pointer"
                   >
                     <User className="w-5 h-5 mr-2" />
                     Bayi Girişi

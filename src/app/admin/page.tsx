@@ -56,7 +56,7 @@ export default function AdminDashboard() {
       router.push("/admin/login");
       return;
     }
-    
+
     // Session hazır olduğunda hemen veri çekmeye başla
     if (status === "authenticated" && session) {
       fetchStatistics();
@@ -64,6 +64,7 @@ export default function AdminDashboard() {
   }, [status, session, router]);
 
   const fetchStatistics = async () => {
+    if (status !== "authenticated") return;
     setLoading(true);
     try {
       const res = await fetch("/api/statistics");
@@ -100,41 +101,41 @@ export default function AdminDashboard() {
   }
 
   const statCards = [
-    { 
-      label: "Toplam Paket", 
-      value: stats?.totalPackages ?? 0, 
-      icon: Package, 
-      color: "bg-blue-500", 
-      href: "/admin/packages" 
+    {
+      label: "Toplam Paket",
+      value: stats?.totalPackages ?? 0,
+      icon: Package,
+      color: "bg-blue-500",
+      href: "/admin/packages"
     },
-    { 
-      label: "Hizmetler", 
-      value: stats?.totalServices ?? 0, 
-      icon: Wrench, 
-      color: "bg-emerald-500", 
-      href: "/admin/services" 
+    {
+      label: "Hizmetler",
+      value: stats?.totalServices ?? 0,
+      icon: Wrench,
+      color: "bg-emerald-500",
+      href: "/admin/services"
     },
-    { 
-      label: "Toplam Başvuru", 
-      value: stats?.total ?? 0, 
-      icon: FileText, 
-      color: "bg-amber-500", 
-      href: "/admin/applications" 
+    {
+      label: "Toplam Başvuru",
+      value: stats?.total ?? 0,
+      icon: FileText,
+      color: "bg-amber-500",
+      href: "/admin/applications"
     },
-    { 
-      label: "Bu Ay", 
-      value: stats?.thisMonth ?? 0, 
-      icon: TrendingUp, 
-      color: "bg-purple-500", 
-      href: "/admin/applications" 
+    {
+      label: "Bu Ay",
+      value: stats?.thisMonth ?? 0,
+      icon: TrendingUp,
+      color: "bg-purple-500",
+      href: "/admin/applications"
     },
   ];
 
   return (
     <div className="min-h-screen">
-      <AdminHeader 
-        title="Dashboard" 
-        description={`Hoş geldiniz, ${session.user?.name || "Admin"}!`} 
+      <AdminHeader
+        title="Dashboard"
+        description={`Hoş geldiniz, ${session.user?.name || "Admin"}!`}
       />
 
       <div className="p-6">

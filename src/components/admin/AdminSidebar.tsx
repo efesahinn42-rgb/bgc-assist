@@ -103,8 +103,7 @@ export function AdminSidebar() {
               <span className="text-white font-bold text-lg">B</span>
             </div>
             <div>
-              <span className="font-bold text-lg">BGCAssist</span>
-              <span className="text-xs text-white/50 block">Admin Panel</span>
+              <span className="text-xs text-white/50 block">Yönetici Panel</span>
             </div>
           </Link>
         </div>

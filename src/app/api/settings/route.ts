@@ -1,10 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { apiError, apiSuccess } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
+
+// Cache configuration: revalidate every 3600 seconds (1 hour) - settings change infrequently
+export const revalidate = 3600;
 
 // Default settings for fallback
 const defaultSettings: Record<string, string> = {
-  phone: "0530 232 27 42",
+  phone: "0850 888 0 155",
   email: "info@bgcassist.com",
   whatsapp: "905302322742",
   address: "Akabe, Şht. Furkan Doğan Cd. Bey Plaza Kat:1 No:3/122, 42020 Karatay/Konya",
@@ -19,6 +24,7 @@ const defaultSettings: Record<string, string> = {
 
 // GET - Fetch all settings (public endpoint)
 export async function GET() {
+  const startTime = Date.now();
   try {
     const settings = await prisma.siteSetting.findMany();
     
@@ -28,24 +34,28 @@ export async function GET() {
       settingsObj[setting.key] = setting.value;
     });
 
-    return NextResponse.json(settingsObj);
+    logger.apiRequest("GET", "/api/settings", 200, Date.now() - startTime);
+    return apiSuccess(settingsObj);
   } catch (error) {
-    console.error("Error fetching settings:", error);
+    logger.error("Error fetching settings", error, { path: "/api/settings" });
+    logger.apiRequest("GET", "/api/settings", 500, Date.now() - startTime);
     // Return defaults if database is not available
-    return NextResponse.json(defaultSettings);
+    return apiSuccess(defaultSettings);
   }
 }
 
 // PUT - Update settings (admin only)
 export async function PUT(req: NextRequest) {
+  const startTime = Date.now();
   try {
     const session = await auth();
     
     if (!session || !session.user) {
-      return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
+      logger.apiRequest("PUT", "/api/settings", 401, Date.now() - startTime);
+      return apiError("Yetkisiz erişim", 401);
     }
 
-    const body = await req.json();
+    const body = (await req.json()) as Record<string, unknown>;
 
     // Upsert each setting
     const updates = Object.entries(body).map(([key, value]) =>
@@ -63,12 +73,12 @@ export async function PUT(req: NextRequest) {
 
     await Promise.all(updates);
 
-    return NextResponse.json({ success: true, message: "Ayarlar güncellendi" });
+    logger.dbOperation("UPDATE", "SiteSetting", { count: updates.length });
+    logger.apiRequest("PUT", "/api/settings", 200, Date.now() - startTime);
+    return apiSuccess({ success: true, message: "Ayarlar güncellendi" });
   } catch (error) {
-    console.error("Error updating settings:", error);
-    return NextResponse.json(
-      { error: "Ayarlar güncellenirken bir hata oluştu" },
-      { status: 500 }
-    );
+    logger.error("Error updating settings", error, { path: "/api/settings" });
+    logger.apiRequest("PUT", "/api/settings", 500, Date.now() - startTime);
+    return apiError("Ayarlar güncellenirken bir hata oluştu", 500);
   }
 }

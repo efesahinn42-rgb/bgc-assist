@@ -49,13 +49,15 @@ export function TopBar() {
 
           {/* Right: Dealer Login & Language */}
           <div className="flex items-center gap-4">
-            <Link
-              href="/bayi-girisi"
+            <a
+              href="https://bgcassist.sistempartner.com/Account/Login"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden sm:flex items-center gap-1.5 text-brand-white/70 hover:text-brand-red transition-colors"
             >
               <User className="w-4 h-4" />
               <span>Bayi Girişi</span>
-            </Link>
+            </a>
             <div className="h-4 w-px bg-brand-white/20 hidden sm:block" />
             <button className="flex items-center gap-1.5 text-brand-white/70 hover:text-brand-white transition-colors">
               <Globe className="w-4 h-4" />

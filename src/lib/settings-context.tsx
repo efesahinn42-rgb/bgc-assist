@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback, ReactNode } from "react";
 
 export interface SiteSettings {
   phone: string;
@@ -18,7 +18,7 @@ export interface SiteSettings {
 
 // Default settings (fallback while loading)
 export const defaultSettings: SiteSettings = {
-  phone: "0530 232 27 42",
+  phone: "0850 888 0 155",
   email: "info@bgcassist.com",
   whatsapp: "905302322742",
   address: "Akabe, Şht. Furkan Doğan Cd. Bey Plaza Kat:1 No:3/122, 42020 Karatay/Konya",
@@ -43,7 +43,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const response = await fetch("/api/settings");
       if (response.ok) {
@@ -56,19 +56,25 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchSettings();
-  }, []);
+  }, [fetchSettings]);
 
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     setLoading(true);
     await fetchSettings();
-  };
+  }, [fetchSettings]);
+
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo(
+    () => ({ settings, loading, refetch }),
+    [settings, loading, refetch]
+  );
 
   return (
-    <SettingsContext.Provider value={{ settings, loading, refetch }}>
+    <SettingsContext.Provider value={contextValue}>
       {children}
     </SettingsContext.Provider>
   );

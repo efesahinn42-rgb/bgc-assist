@@ -2,12 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendApplicationEmail } from "@/lib/email";
+import { apiError, apiSuccess, sanitizeEmail, sanitizePhone, sanitizePlate, parseIntSafe } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
+import { validateRequired, validatePhone, validateTCNo, validateEmail } from "@/lib/validation";
+import type { ApplicationListResponse, CreateApplicationRequest } from "@/types/api";
 
 // GET - Tüm başvuruları getir (admin only)
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const session = await auth();
-    
+
     if (!session || !session.user) {
       return NextResponse.json(
         { error: "Yetkisiz erişim" },
@@ -23,11 +28,11 @@ export async function GET(request: NextRequest) {
     const lastCheck = searchParams.get("lastCheck"); // ISO timestamp
 
     const where: Record<string, unknown> = {};
-    
+
     if (status && status !== "all") {
       where.status = status;
     }
-    
+
     if (search) {
       where.OR = [
         { fullName: { contains: search, mode: "insensitive" } },
@@ -42,7 +47,7 @@ export async function GET(request: NextRequest) {
     const whereForNew = { ...where };
     let lastCheckDate: Date | null = null;
     let newCount = 0; // newCount'u daha geniş scope'ta tanımla
-    
+
     if (lastCheck) {
       try {
         lastCheckDate = new Date(lastCheck);
@@ -58,20 +63,23 @@ export async function GET(request: NextRequest) {
     if (lastCheck && lastCheckDate) {
       // Önce sadece count kontrolü yap (daha hızlı)
       newCount = await prisma.application.count({ where: whereForNew });
-      
+
       if (newCount === 0) {
         // Yeni veri yok, gereksiz query'leri atla
-        return NextResponse.json({
+        const total = await prisma.application.count({ where });
+        const response: ApplicationListResponse = {
           applications: [],
           pagination: {
             page,
             limit,
-            total: await prisma.application.count({ where }), // Total count hala gerekli
-            totalPages: Math.ceil((await prisma.application.count({ where })) / limit),
+            total,
+            totalPages: Math.ceil(total / limit),
           },
           hasNewData: false,
           newCount: 0,
-        });
+        };
+        logger.apiRequest("GET", "/api/applications", 200, Date.now() - startTime);
+        return apiSuccess(response);
       }
 
       // Yeni veri var, sadece yeni başvuruları getir
@@ -83,7 +91,7 @@ export async function GET(request: NextRequest) {
 
       const total = await prisma.application.count({ where });
 
-      return NextResponse.json({
+      const response: ApplicationListResponse = {
         applications,
         pagination: {
           page,
@@ -93,7 +101,10 @@ export async function GET(request: NextRequest) {
         },
         hasNewData: true,
         newCount,
-      });
+      };
+
+      logger.apiRequest("GET", "/api/applications", 200, Date.now() - startTime);
+      return apiSuccess(response);
     }
 
     // Normal mod (lastCheck yok) - tüm query'leri çalıştır
@@ -107,7 +118,7 @@ export async function GET(request: NextRequest) {
       prisma.application.count({ where }),
     ]);
 
-    return NextResponse.json({
+    const response: ApplicationListResponse = {
       applications,
       pagination: {
         page,
@@ -117,87 +128,95 @@ export async function GET(request: NextRequest) {
       },
       hasNewData: false,
       newCount: applications.length,
-    });
+    };
+
+    logger.apiRequest("GET", "/api/applications", 200, Date.now() - startTime);
+    return apiSuccess(response);
   } catch (error) {
-    console.error("Error fetching applications:", error);
-    return NextResponse.json(
-      { error: "Başvurular yüklenemedi" },
-      { status: 500 }
-    );
+    logger.error("Error fetching applications", error, { path: "/api/applications" });
+    logger.apiRequest("GET", "/api/applications", 500, Date.now() - startTime);
+    return apiError("Başvurular yüklenemedi", 500);
   }
 }
 
 // POST - Yeni başvuru oluştur (public)
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   try {
-    const body = await request.json();
-    
-    // Validate required fields (only fullName, phone, packageName are required)
-    const requiredFields = ["fullName", "phone", "packageName"];
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        return NextResponse.json(
-          { error: `${field} alanı gerekli` },
-          { status: 400 }
-        );
-      }
+    const body = (await request.json()) as CreateApplicationRequest;
+
+    // Validate required fields
+    const requiredValidation = validateRequired(body as unknown as Record<string, unknown>, ["fullName", "phone", "packageName"]);
+    if (!requiredValidation.isValid) {
+      logger.apiRequest("POST", "/api/applications", 400, Date.now() - startTime);
+      return apiError(requiredValidation.error || "Gerekli alanlar eksik", 400);
     }
 
     // Validate phone
-    if (body.phone.length < 10) {
-      return NextResponse.json(
-        { error: "Geçerli bir telefon numarası giriniz" },
-        { status: 400 }
-      );
+    const phoneValidation = validatePhone(body.phone);
+    if (!phoneValidation.isValid) {
+      logger.apiRequest("POST", "/api/applications", 400, Date.now() - startTime);
+      return apiError(phoneValidation.error || "Geçerli bir telefon numarası giriniz", 400);
     }
 
-    // Optional: Validate TC number if provided
-    if (body.tcNo && body.tcNo.length !== 11) {
-      return NextResponse.json(
-        { error: "TC Kimlik numarası 11 haneli olmalıdır" },
-        { status: 400 }
-      );
+    // Validate TC No if provided
+    if (body.tcNo) {
+      const tcValidation = validateTCNo(body.tcNo);
+      if (!tcValidation.isValid) {
+        logger.apiRequest("POST", "/api/applications", 400, Date.now() - startTime);
+        return apiError(tcValidation.error || "Geçersiz TC Kimlik numarası", 400);
+      }
     }
+
+    // Validate email if provided
+    if (body.email) {
+      const emailValidation = validateEmail(body.email);
+      if (!emailValidation.isValid) {
+        logger.apiRequest("POST", "/api/applications", 400, Date.now() - startTime);
+        return apiError(emailValidation.error || "Geçersiz email adresi", 400);
+      }
+    }
+
+    // Sanitize inputs
+    const sanitizedPhone = sanitizePhone(body.phone);
+    const sanitizedEmail = body.email ? sanitizeEmail(body.email) : null;
+    const sanitizedPlate = body.plate ? sanitizePlate(body.plate) : null;
 
     const newApplication = await prisma.application.create({
       data: {
-        fullName: body.fullName,
-        tcNo: body.tcNo || null,
-        email: body.email || null,
-        phone: body.phone,
-        city: body.city || null,
-        district: body.district || null,
-        address: body.address || null,
-        plate: body.plate ? body.plate.toUpperCase() : null,
-        brand: body.brand || null,
-        model: body.model || null,
-        year: body.year || null,
-        packageName: body.packageName,
-        packagePrice: body.packagePrice ? parseInt(body.packagePrice) : null,
+        fullName: body.fullName.trim(),
+        tcNo: body.tcNo?.trim() || null,
+        email: sanitizedEmail,
+        phone: sanitizedPhone,
+        city: body.city?.trim() || null,
+        district: body.district?.trim() || null,
+        address: body.address?.trim() || null,
+        plate: sanitizedPlate,
+        brand: body.brand?.trim() || null,
+        model: body.model?.trim() || null,
+        year: body.year?.trim() || null,
+        packageName: body.packageName.trim(),
+        packagePrice: body.packagePrice ? parseIntSafe(body.packagePrice) : null,
         status: "PENDING",
       },
     });
 
     // Email gönder (async, hata olsa bile başvuru kaydedilir)
     try {
-      // Test için environment variable, yoksa site settings'ten email adresini al
       const testEmail = process.env.TEST_EMAIL;
       let companyEmail: string;
-      
+
       if (testEmail) {
-        // Test modu: Environment variable'dan al
         companyEmail = testEmail;
-        console.log("🧪 Test modu: Email gönderilecek adres:", companyEmail);
+        logger.info("Test mode: Sending email", { email: companyEmail });
       } else {
-        // Production: Site settings'ten al
         const settings = await prisma.siteSetting.findUnique({
           where: { key: "email" },
         });
         companyEmail = settings?.value || "info@bgcassist.com";
-        console.log("📧 Production modu: Email gönderilecek adres:", companyEmail);
+        logger.info("Production mode: Sending email", { email: companyEmail });
       }
-      
-      // Email gönder
+
       await sendApplicationEmail(
         {
           fullName: newApplication.fullName,
@@ -217,16 +236,17 @@ export async function POST(request: NextRequest) {
         companyEmail
       );
     } catch (emailError) {
-      // Email gönderme hatası başvuruyu engellemez
-      console.error("⚠️ Email gönderme hatası (başvuru kaydedildi):", emailError);
+      logger.error("Email sending error (application saved)", emailError, {
+        applicationId: newApplication.id,
+      });
     }
 
-    return NextResponse.json(newApplication, { status: 201 });
+    logger.dbOperation("CREATE", "Application", { id: newApplication.id });
+    logger.apiRequest("POST", "/api/applications", 201, Date.now() - startTime);
+    return apiSuccess(newApplication, 201);
   } catch (error) {
-    console.error("Error creating application:", error);
-    return NextResponse.json(
-      { error: "Başvuru oluşturulamadı" },
-      { status: 500 }
-    );
+    logger.error("Error creating application", error, { path: "/api/applications" });
+    logger.apiRequest("POST", "/api/applications", 500, Date.now() - startTime);
+    return apiError("Başvuru oluşturulamadı", 500);
   }
 }

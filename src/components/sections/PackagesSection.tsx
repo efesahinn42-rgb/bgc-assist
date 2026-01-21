@@ -1,25 +1,86 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, ChevronRight } from "lucide-react";
-import { packages } from "@/lib/packages-data";
+import { Check, ChevronRight, Zap, Shield, Star, Users, Crown, Truck, LucideIcon } from "lucide-react";
+import { packages as staticPackages, Package } from "@/lib/packages-data";
 import { usePurchaseModal } from "@/context/PurchaseModalContext";
 
 import "swiper/css";
 import "swiper/css/navigation";
 
+// Icon mapping for API packages
+const iconMap: Record<string, LucideIcon> = {
+  Zap,
+  Shield,
+  Star,
+  Users,
+  Crown,
+  Truck,
+};
+
 export function PackagesSection() {
   const { openModal } = usePurchaseModal();
+  const [packages, setPackages] = useState<Package[]>(staticPackages);
+  const [loading, setLoading] = useState(true);
+
+  const fetchPackages = useCallback(async () => {
+    try {
+      const res = await fetch("/api/packages?active=true");
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) {
+          // Map API packages to Package interface
+          const mappedPackages: Package[] = data.map((pkg: any) => ({
+            name: pkg.name,
+            price: pkg.price.toString(),
+            period: pkg.period,
+            description: pkg.description,
+            icon: iconMap[pkg.icon] || Star,
+            popular: pkg.popular || false,
+            color: pkg.color || "bg-blue-500",
+            features: Array.isArray(pkg.features) ? pkg.features : [],
+            notIncluded: Array.isArray(pkg.notIncluded) ? pkg.notIncluded : [],
+          }));
+          setPackages(mappedPackages);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching packages, using static:", err);
+      // Keep static packages on error
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPackages();
+  }, [fetchPackages]);
+
+  // Find popular package index
+  const popularIndex = packages.findIndex(pkg => pkg.popular);
+
+  // Calculate initial slide to center popular package
+  // Desktop'ta 3 paket görünüyorsa, popüler paketi ortada göstermek için
+  // Slide'ta ortadaki pozisyon index'i = popularIndex - initialSlide = 1
+  // Yani initialSlide = popularIndex - 1
+  // Sınırları kontrol ediyoruz:
+  // - Eğer popularIndex < 1 ise, initialSlide = 0 (ilk slide)
+  // - Eğer popularIndex >= packages.length - 1 ise, initialSlide = packages.length - 3 (son slide)
+  // - Diğer durumlarda: initialSlide = popularIndex - 1
+  const initialSlide = popularIndex >= 0 && packages.length >= 3
+    ? Math.max(0, Math.min(popularIndex - 1, packages.length - 3))
+    : 0;
 
   return (
     <section id="packages" className="py-20 lg:py-28 relative overflow-hidden">
       {/* Background matching other sections */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-stone-100 to-gray-100" />
-      
+
       {/* Subtle Dot Pattern */}
       <div className="absolute inset-0 opacity-[0.5]">
         <div className="absolute inset-0" style={{
@@ -27,11 +88,11 @@ export function PackagesSection() {
           backgroundSize: '32px 32px',
         }} />
       </div>
-      
+
       {/* Decorative Elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-red/20 to-transparent" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-red/20 to-transparent" />
-      
+
       {/* Soft gradient orbs */}
       <div className="absolute top-20 -left-20 w-[500px] h-[500px] bg-gradient-to-br from-rose-100/50 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-20 -right-20 w-[500px] h-[500px] bg-gradient-to-tl from-orange-100/50 to-transparent rounded-full blur-3xl" />
@@ -64,15 +125,12 @@ export function PackagesSection() {
           transition={{ duration: 0.6 }}
         >
           <Swiper
-            modules={[Autoplay, Navigation]}
+            key={`packages-${packages.length}-${popularIndex}`}
+            modules={[Navigation]}
             spaceBetween={24}
             slidesPerView={1}
             navigation={true}
-            autoplay={{
-              delay: 4000,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true,
-            }}
+            initialSlide={initialSlide}
             breakpoints={{
               640: {
                 slidesPerView: 2,
@@ -101,18 +159,16 @@ export function PackagesSection() {
                       </div>
                     )}
 
-                    <Card className={`h-full overflow-hidden transition-all duration-300 hover:shadow-2xl bg-white ${
-                      pkg.popular 
-                        ? "border-2 border-brand-red shadow-xl" 
+                    <Card className={`h-full overflow-hidden transition-all duration-300 hover:shadow-2xl bg-white ${pkg.popular
+                        ? "border-2 border-brand-red shadow-xl"
                         : "border-0 shadow-lg shadow-stone-200/60 hover:shadow-xl"
-                    }`}>
+                      }`}>
                       <CardContent className="p-0">
                         {/* Header */}
                         <div className={`p-6 lg:p-8 ${pkg.popular ? "bg-brand-red" : "bg-white"}`}>
                           <div className={`h-1 w-16 rounded-full mb-4 ${pkg.popular ? "bg-white/30" : pkg.color}`} />
-                          <div className={`w-12 h-12 rounded-xl ${
-                            pkg.popular ? "bg-brand-white/20" : `${pkg.color}/10`
-                          } flex items-center justify-center mb-4`}>
+                          <div className={`w-12 h-12 rounded-xl ${pkg.popular ? "bg-brand-white/20" : `${pkg.color}/10`
+                            } flex items-center justify-center mb-4`}>
                             <Icon className={`w-6 h-6 ${pkg.popular ? "text-brand-white" : pkg.color.replace('bg-', 'text-')}`} />
                           </div>
                           <h3 className={`text-xl lg:text-2xl font-bold mb-2 ${pkg.popular ? "text-brand-white" : "text-brand-black"}`}>
@@ -154,11 +210,10 @@ export function PackagesSection() {
 
                           <button
                             onClick={() => openModal(pkg)}
-                            className={`w-full py-4 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all duration-300 min-h-[44px] touch-manipulation ${
-                              pkg.popular
+                            className={`w-full py-4 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all duration-300 min-h-[44px] touch-manipulation ${pkg.popular
                                 ? "bg-brand-red hover:bg-brand-red-dark text-white"
                                 : "bg-brand-black hover:bg-brand-black/90 text-white"
-                            }`}
+                              }`}
                           >
                             Hemen Satın Al
                             <ChevronRight className="w-4 h-4" />
@@ -182,7 +237,11 @@ export function PackagesSection() {
           className="text-center text-brand-gray mt-10"
         >
           Tüm fiyatlara KDV dahildir. Kurumsal paketler için{" "}
-          <a href="#contact" className="text-brand-red hover:underline font-medium">
+          <a
+            href="#contact"
+            className="text-brand-red hover:underline font-medium"
+            suppressHydrationWarning
+          >
             bizimle iletişime geçin
           </a>
           .

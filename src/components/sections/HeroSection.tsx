@@ -5,9 +5,11 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade, Navigation } from "swiper/modules";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ShieldCheck, Clock, MapPin, Users, Star, Activity, Car, Loader2 } from "lucide-react";
+import { ChevronRight, ChevronDown, ShieldCheck, Clock, MapPin, Users, Star, Activity, Car, Loader2 } from "lucide-react";
 import { getPackageByCategory } from "@/lib/packages-data";
 import { usePurchaseModal } from "@/context/PurchaseModalContext";
+import Link from "next/link";
+import Image from "next/image";
 
 // Swiper CSS imports
 import "swiper/css";
@@ -201,8 +203,35 @@ export function HeroSection() {
     }
   };
 
+  const handleScrollToStats = () => {
+    const statsSection = document.getElementById('stats');
+    if (statsSection) {
+      statsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   return (
     <section className="relative">
+      {/* Logo - Slider içine gömülü */}
+      <div className="absolute top-4 left-16 lg:top-6 lg:left-24 z-50">
+        <Link href="/" className="flex items-center group">
+          <div className="relative h-12 md:h-14 lg:h-16 w-auto flex items-center">
+            <Image
+              src="/logos/logo-assist.png"
+              alt="BGCAssist Logo"
+              width={0}
+              height={0}
+              sizes="(max-width: 768px) 120px, 160px"
+              className="h-12 md:h-14 lg:h-16 w-auto object-contain"
+              style={{
+                // Şeffaf arka planlı logo için sadeleştirilmiş stil
+                filter: 'brightness(1.05) contrast(1.1)',
+              }}
+            />
+          </div>
+        </Link>
+      </div>
+
       {/* Swiper Slider */}
       <Swiper
         modules={[Autoplay, Pagination, EffectFade, Navigation]}
@@ -229,11 +258,11 @@ export function HeroSection() {
                   className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
                   style={{ backgroundImage: `url(${slide.image})` }}
                 />
-                
+
                 {/* Dark Overlay with Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-r from-brand-black via-brand-black/80 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-black/60 via-transparent to-brand-black/30" />
-                
+
                 {/* Content */}
                 <div className="relative h-full flex items-center pt-20">
                   <div className="container mx-auto px-4 lg:px-8">
@@ -261,17 +290,17 @@ export function HeroSection() {
                         {slide.description}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-4">
-                        <Button 
-                          size="lg" 
-                          className={`${colors.bg} hover:opacity-90 text-white text-base sm:text-lg px-6 sm:px-8 py-6 sm:py-7 font-semibold shadow-lg min-h-[44px] touch-manipulation`}
+                        <Button
+                          size="lg"
+                          className={`${colors.bg} hover:bg-white hover:text-brand-black text-white text-base sm:text-lg px-6 sm:px-8 py-6 sm:py-7 font-semibold shadow-lg min-h-[44px] touch-manipulation transition-all duration-300`}
                           onClick={() => handleApplyClick(slide.category)}
                         >
                           Hemen Başvur
                           <ChevronRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
                         </Button>
-                        <Button 
-                          size="lg" 
-                          variant="outline" 
+                        <Button
+                          size="lg"
+                          variant="outline"
                           className="border-2 border-brand-white bg-brand-white/10 text-brand-white hover:bg-brand-white hover:text-brand-black text-base sm:text-lg px-6 sm:px-8 py-6 sm:py-7 font-semibold backdrop-blur-md min-h-[44px] touch-manipulation"
                         >
                           Detaylı Bilgi
@@ -294,8 +323,8 @@ export function HeroSection() {
                                   <StatIcon className={`w-6 h-6 ${colors.text}`} />
                                 </div>
                                 <div>
-                                  <div className="text-2xl font-bold text-brand-white">{stat.value}</div>
-                                  <div className="text-sm text-brand-white/60">{stat.label}</div>
+                                  <div className="text-2xl font-bold text-brand-white" suppressHydrationWarning>{stat.value}</div>
+                                  <div className="text-sm text-brand-white/60" suppressHydrationWarning>{stat.label}</div>
                                 </div>
                               </div>
                             );
@@ -311,6 +340,21 @@ export function HeroSection() {
         })}
       </Swiper>
 
+      {/* Keşfet Button */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30">
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          onClick={handleScrollToStats}
+          className="flex flex-col items-center gap-2 text-brand-white/90 hover:text-brand-white transition-colors group"
+          aria-label="Keşfet"
+        >
+          <span className="text-sm font-medium">Keşfet</span>
+          <ChevronDown className="w-6 h-6 animate-bounce group-hover:animate-none" />
+        </motion.button>
+      </div>
+
       {/* Car Brands Marquee */}
       <div className="relative z-20 -mt-16 lg:-mt-20">
         <div className="bg-gradient-to-b from-slate-100 via-stone-100 to-gray-100 py-12 lg:py-16 relative overflow-hidden">
@@ -321,27 +365,37 @@ export function HeroSection() {
               backgroundSize: '32px 32px',
             }} />
           </div>
-          
+
           {/* Decorative line */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-red/20 to-transparent" />
-          
+
           <div className="container mx-auto px-4 lg:px-8 relative">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
+              className="flex flex-col items-center gap-6"
             >
+              {/* Devam Et Button */}
+              <button
+                onClick={handleScrollToStats}
+                className="bg-brand-red hover:bg-brand-red-dark text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation"
+                aria-label="Devam Et"
+              >
+                <ChevronDown className="w-6 h-6" />
+              </button>
+
               <p className="text-center text-brand-gray text-sm mb-8 font-medium uppercase tracking-widest">
                 Tüm Araç Markalarına Hizmet Veriyoruz
               </p>
             </motion.div>
           </div>
-          
+
           <div className="relative overflow-hidden py-6">
             {/* Gradient overlays for fade effect */}
             <div className="absolute left-0 top-0 bottom-0 w-32 lg:w-48 bg-gradient-to-r from-stone-100 via-stone-100/80 to-transparent z-10" />
             <div className="absolute right-0 top-0 bottom-0 w-32 lg:w-48 bg-gradient-to-l from-stone-100 via-stone-100/80 to-transparent z-10" />
-            
+
             {/* Scrolling container */}
             <div className="flex animate-marquee items-center">
               {/* First set of logos */}

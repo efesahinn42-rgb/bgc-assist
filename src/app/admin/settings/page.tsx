@@ -36,7 +36,7 @@ interface Settings {
 }
 
 const initialSettings: Settings = {
-  phone: "0530 232 27 42",
+  phone: "0850 888 0 155",
   email: "info@bgcassist.com",
   whatsapp: "905302322742",
   address: "Akabe, Şht. Furkan Doğan Cd. Bey Plaza Kat:1 No:3/122, 42020 Karatay/Konya",
@@ -166,7 +166,7 @@ export default function SettingsPage() {
                     value={settings.phone}
                     onChange={(e) => updateSetting("phone", e.target.value)}
                     className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none"
-                    placeholder="0530 232 27 42"
+                    placeholder="0850 888 0 155"
                   />
                 </div>
               </div>

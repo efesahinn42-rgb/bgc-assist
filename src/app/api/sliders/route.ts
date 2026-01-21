@@ -1,9 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
+import { apiError, apiSuccess, getMaxOrder, parseIntSafe } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
+import { validateRequired } from "@/lib/validation";
 
 // GET - Tüm slider'ları getir (public, isActive filter ile)
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("active") !== "false";
@@ -13,53 +18,63 @@ export async function GET(request: NextRequest) {
       orderBy: { order: "asc" },
     });
 
-    return NextResponse.json(sliders);
+    logger.apiRequest("GET", "/api/sliders", 200, Date.now() - startTime);
+    return apiSuccess(sliders);
   } catch (error) {
-    console.error("Error fetching sliders:", error);
-    return NextResponse.json(
-      { error: "Slider'lar yüklenemedi" },
-      { status: 500 }
-    );
+    logger.error("Error fetching sliders", error, { path: "/api/sliders" });
+    logger.apiRequest("GET", "/api/sliders", 500, Date.now() - startTime);
+    return apiError("Slider'lar yüklenemedi", 500);
   }
 }
 
 // POST - Yeni slider ekle (admin auth gerekli)
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const session = await auth();
-    
+
     if (!session || !session.user) {
-      return NextResponse.json(
-        { error: "Yetkisiz erişim" },
-        { status: 401 }
-      );
+      logger.apiRequest("POST", "/api/sliders", 401, Date.now() - startTime);
+      return apiError("Yetkisiz erişim", 401);
     }
 
-    const body = await request.json();
-    
+    const body = (await request.json()) as {
+      category: string;
+      title: string;
+      description: string;
+      image: string;
+      color: string;
+      stats?: unknown[];
+      order?: number | string;
+      isActive?: boolean;
+    };
+
     // Validate required fields
-    const requiredFields = ["category", "title", "description", "image", "color"];
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        return NextResponse.json(
-          { error: `${field} alanı gerekli` },
-          { status: 400 }
-        );
-      }
+    const requiredValidation = validateRequired(body as unknown as Record<string, unknown>, [
+      "category",
+      "title",
+      "description",
+      "image",
+      "color",
+    ]);
+    if (!requiredValidation.isValid) {
+      logger.apiRequest("POST", "/api/sliders", 400, Date.now() - startTime);
+      return apiError(requiredValidation.error || "Gerekli alanlar eksik", 400);
     }
 
     // Validate stats format
     if (body.stats && !Array.isArray(body.stats)) {
-      return NextResponse.json(
-        { error: "Stats bir array olmalıdır" },
-        { status: 400 }
-      );
+      logger.apiRequest("POST", "/api/sliders", 400, Date.now() - startTime);
+      return apiError("Stats bir array olmalıdır", 400);
     }
 
     // Get max order
-    const maxOrder = await prisma.sliderItem.aggregate({
-      _max: { order: true },
-    });
+    const order =
+      body.order !== undefined
+        ? parseIntSafe(body.order)
+        : await getMaxOrder(() =>
+          prisma.sliderItem.aggregate({ _max: { order: true } })
+        );
 
     const newSlider = await prisma.sliderItem.create({
       data: {
@@ -68,8 +83,8 @@ export async function POST(request: NextRequest) {
         description: body.description,
         image: body.image,
         color: body.color,
-        stats: body.stats || [],
-        order: body.order !== undefined ? parseInt(body.order) : (maxOrder._max.order || 0) + 1,
+        stats: (body.stats as Prisma.InputJsonValue) || [],
+        order,
         isActive: body.isActive !== false,
       },
     });
@@ -85,12 +100,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(newSlider, { status: 201 });
+    logger.dbOperation("CREATE", "SliderItem", { id: newSlider.id });
+    logger.apiRequest("POST", "/api/sliders", 201, Date.now() - startTime);
+    return apiSuccess(newSlider, 201);
   } catch (error) {
-    console.error("Error creating slider:", error);
-    return NextResponse.json(
-      { error: "Slider oluşturulamadı" },
-      { status: 500 }
-    );
+    logger.error("Error creating slider", error, { path: "/api/sliders" });
+    logger.apiRequest("POST", "/api/sliders", 500, Date.now() - startTime);
+    return apiError("Slider oluşturulamadı", 500);
   }
 }

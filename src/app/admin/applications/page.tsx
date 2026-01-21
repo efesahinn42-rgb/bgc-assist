@@ -5,15 +5,15 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { motion } from "framer-motion";
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Trash2, 
-  Phone, 
-  Mail, 
-  Car, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Trash2,
+  Phone,
+  Mail,
+  Car,
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -132,6 +132,7 @@ export default function ApplicationsPage() {
 
   // Fetch fonksiyonları - useEffect'lerden önce tanımlanmalı
   const fetchStatistics = useCallback(async () => {
+    if (authStatus !== "authenticated") return;
     setStatsLoading(true);
     try {
       const res = await fetch("/api/statistics");
@@ -160,7 +161,7 @@ export default function ApplicationsPage() {
       if (search) {
         params.append("search", search);
       }
-      
+
       // Polling sırasında lastCheck parametresini ekle
       if (isPolling && lastCheckTime) {
         params.append("lastCheck", lastCheckTime);
@@ -169,7 +170,7 @@ export default function ApplicationsPage() {
       const res = await fetch(`/api/applications?${params}`);
       if (res.ok) {
         const data = await res.json();
-        
+
         // Polling sırasında sadece yeni veri varsa güncelle
         if (isPolling) {
           if (data.hasNewData && data.applications.length > 0) {
@@ -333,9 +334,9 @@ export default function ApplicationsPage() {
 
   return (
     <div className="min-h-screen">
-      <AdminHeader 
-        title="Başvurular" 
-        description="Müşteri başvurularını yönetin" 
+      <AdminHeader
+        title="Başvurular"
+        description="Müşteri başvurularını yönetin"
       />
 
       <div className="p-6">
@@ -480,11 +481,10 @@ export default function ApplicationsPage() {
                 <button
                   key={status.value}
                   onClick={() => setStatusFilter(status.value)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    statusFilter === status.value
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${statusFilter === status.value
                       ? status.color + " ring-2 ring-offset-2 ring-gray-300"
                       : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
-                  }`}
+                    }`}
                 >
                   {status.label}: {count}
                 </button>
@@ -492,11 +492,10 @@ export default function ApplicationsPage() {
             })}
             <button
               onClick={() => setStatusFilter("all")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                statusFilter === "all"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${statusFilter === "all"
                   ? "bg-brand-red text-white ring-2 ring-offset-2 ring-brand-red/50"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               Tümü: {stats?.total ?? 0}
             </button>
@@ -542,8 +541,8 @@ export default function ApplicationsPage() {
           </div>
 
           {/* Export Button */}
-          <Button 
-            onClick={handleExport} 
+          <Button
+            onClick={handleExport}
             variant="outline"
             disabled={isExporting}
             className="border-2"

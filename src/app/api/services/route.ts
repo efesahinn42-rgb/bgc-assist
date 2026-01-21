@@ -1,15 +1,24 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
+import { apiError, apiSuccess, generateUniqueSlug, getMaxOrder } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
+import { validateRequired } from "@/lib/validation";
+import type { CreateServiceRequest } from "@/types/api";
+
+// Cache configuration: revalidate every 60 seconds (1 minute)
+export const revalidate = 60;
 
 // GET - Tüm hizmetleri getir
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const session = await auth();
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("active") === "true";
 
-    const where = session ? {} : { isActive: true };
+    const where: { isActive?: boolean } = session ? {} : { isActive: true };
     if (activeOnly) {
       where.isActive = true;
     }
@@ -19,69 +28,50 @@ export async function GET(request: NextRequest) {
       orderBy: { order: "asc" },
     });
 
-    return NextResponse.json(services);
+    logger.apiRequest("GET", "/api/services", 200, Date.now() - startTime);
+    return apiSuccess(services);
   } catch (error) {
-    console.error("Error fetching services:", error);
-    return NextResponse.json(
-      { error: "Hizmetler yüklenemedi" },
-      { status: 500 }
-    );
+    logger.error("Error fetching services", error, { path: "/api/services" });
+    logger.apiRequest("GET", "/api/services", 500, Date.now() - startTime);
+    return apiError("Hizmetler yüklenemedi", 500);
   }
 }
 
 // POST - Yeni hizmet ekle (Admin yetkisi gerekli)
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const session = await auth();
-    
+
     if (!session || !session.user) {
-      return NextResponse.json(
-        { error: "Yetkisiz erişim" },
-        { status: 401 }
-      );
+      logger.apiRequest("POST", "/api/services", 401, Date.now() - startTime);
+      return apiError("Yetkisiz erişim", 401);
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as CreateServiceRequest;
 
     // Validate required fields
-    const requiredFields = ["title", "description", "icon", "color"];
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        return NextResponse.json(
-          { error: `${field} alanı gerekli` },
-          { status: 400 }
-        );
-      }
+    const requiredValidation = validateRequired(body as unknown as Record<string, unknown>, ["title", "description", "icon", "color"]);
+    if (!requiredValidation.isValid) {
+      logger.apiRequest("POST", "/api/services", 400, Date.now() - startTime);
+      return apiError(requiredValidation.error || "Gerekli alanlar eksik", 400);
     }
 
-    // Generate slug from title
-    const slug = body.title
-      .toLowerCase()
-      .replace(/ğ/g, "g")
-      .replace(/ü/g, "u")
-      .replace(/ş/g, "s")
-      .replace(/ı/g, "i")
-      .replace(/ö/g, "o")
-      .replace(/ç/g, "c")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-
-    // Check if slug exists
-    const existingService = await prisma.service.findUnique({
-      where: { slug },
+    // Generate unique slug
+    const slug = await generateUniqueSlug(body.title, async (slug) => {
+      const existing = await prisma.service.findUnique({ where: { slug } });
+      return !!existing;
     });
-
-    const finalSlug = existingService ? `${slug}-${Date.now()}` : slug;
 
     // Get max order
-    const maxOrder = await prisma.service.aggregate({
-      _max: { order: true },
-    });
+    const order = await getMaxOrder(() =>
+      prisma.service.aggregate({ _max: { order: true } })
+    );
 
     const newService = await prisma.service.create({
       data: {
         title: body.title,
-        slug: finalSlug,
+        slug,
         description: body.description,
         icon: body.icon,
         color: body.color,
@@ -89,18 +79,18 @@ export async function POST(request: NextRequest) {
         modalDescription: body.modalDescription || null,
         interventionTime: body.interventionTime || null,
         coverageArea: body.coverageArea || null,
-        featuresList: body.featuresList || [],
-        order: (maxOrder._max.order || 0) + 1,
+        featuresList: (body.featuresList as Prisma.InputJsonValue) || [],
+        order,
         isActive: body.isActive ?? true,
       },
     });
 
-    return NextResponse.json(newService, { status: 201 });
+    logger.dbOperation("CREATE", "Service", { id: newService.id });
+    logger.apiRequest("POST", "/api/services", 201, Date.now() - startTime);
+    return apiSuccess(newService, 201);
   } catch (error) {
-    console.error("Error creating service:", error);
-    return NextResponse.json(
-      { error: "Hizmet oluşturulamadı" },
-      { status: 500 }
-    );
+    logger.error("Error creating service", error, { path: "/api/services" });
+    logger.apiRequest("POST", "/api/services", 500, Date.now() - startTime);
+    return apiError("Hizmet oluşturulamadı", 500);
   }
 }

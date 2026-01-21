@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Lock, Mail, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 function LoginForm() {
   const router = useRouter();
@@ -169,11 +170,22 @@ export default function AdminLoginPage() {
       >
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-red mb-4">
-            <span className="text-white font-bold text-2xl">B</span>
+          <div className="inline-flex items-center justify-center w-64 h-64 mb-0">
+            <Image
+              src="/logos/logo-assist.png"
+              alt="BGCAssist Logo"
+              width={256}
+              height={256}
+              className="w-64 h-64 object-contain"
+              priority
+            />
           </div>
-          <h1 className="text-2xl font-bold text-white">BGCAssist</h1>
-          <p className="text-gray-400 mt-1">Admin Panel</p>
+          <div className="-mt-2">
+            <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">
+              Yönetici Paneli
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-brand-red to-transparent mx-auto rounded-full"></div>
+          </div>
         </div>
 
         {/* Login Form with Suspense */}
@@ -183,7 +195,7 @@ export default function AdminLoginPage() {
 
         {/* Footer */}
         <p className="text-center text-gray-500 text-sm mt-6">
-          © 2024 BGCAssist. Tüm hakları saklıdır.
+          © 2026 BGCAssist. Tüm hakları saklıdır.
         </p>
       </motion.div>
     </div>

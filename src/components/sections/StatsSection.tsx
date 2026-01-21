@@ -3,7 +3,7 @@
 import CountUp from "react-countup";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { Users, Car, Clock, MapPin, Package, MessageCircle, HelpCircle, Phone, ChevronRight } from "lucide-react";
+import { Users, Car, Clock, MapPin, Package, MessageCircle, HelpCircle, Phone, ChevronRight, ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSettings } from "@/lib/settings-context";
 
@@ -88,6 +88,10 @@ export function StatsSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { settings } = useSettings();
 
+  // Yardım Talep Et phone number (hardcoded)
+  const yardimTalepPhone = "0850 242 0 155";
+  const yardimTalepLink = yardimTalepPhone.replace(/\s/g, "");
+
   // Quick actions with dynamic WhatsApp link
   const quickActions = [
     {
@@ -110,9 +114,9 @@ export function StatsSection() {
       icon: HelpCircle,
       title: "Yardım Talep Et",
       description: "Acil yol yardımı çağırın",
-      href: "#help",
+      href: `tel:+90${yardimTalepLink}`,
       color: "bg-amber-500",
-      external: false,
+      external: true,
     },
     {
       icon: Phone,
@@ -124,8 +128,15 @@ export function StatsSection() {
     },
   ];
 
+  const handleScrollToServices = () => {
+    const servicesDevamEtButton = document.getElementById('services-devam-et');
+    if (servicesDevamEtButton) {
+      servicesDevamEtButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-gradient-to-br from-slate-100 via-stone-100 to-gray-100 relative overflow-hidden">
+    <section id="stats" ref={ref} className="py-20 lg:py-28 bg-gradient-to-br from-slate-100 via-stone-100 to-gray-100 relative overflow-hidden">
       {/* Subtle Dot Pattern */}
       <div className="absolute inset-0 opacity-[0.5]">
         <div className="absolute inset-0" style={{
@@ -158,15 +169,16 @@ export function StatsSection() {
                 <a 
                   href={action.href} 
                   className="block h-full"
+                  suppressHydrationWarning
                   {...(action.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                 >
-                  <Card className="h-full bg-white border-0 shadow-lg shadow-stone-200/60 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:-translate-y-1 overflow-hidden rounded-xl">
-                    <CardContent className="p-0 relative">
+                  <Card className="h-full bg-white border-0 shadow-lg shadow-stone-200/60 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:-translate-y-1 overflow-hidden rounded-xl" suppressHydrationWarning>
+                    <CardContent className="p-0 relative" suppressHydrationWarning>
                       {/* Colored top bar */}
-                      <div className={`h-1 ${action.color}`} />
+                      <div className={`h-1 ${action.color}`} suppressHydrationWarning />
                       
-                      <div className="p-5 lg:p-6 flex flex-col items-center text-center">
-                        <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-xl ${action.color} flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300 shadow-md ${action.color.replace('bg-', 'shadow-')}/30`}>
+                      <div className="p-5 lg:p-6 flex flex-col items-center text-center" suppressHydrationWarning>
+                        <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-xl ${action.color} flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300 shadow-md ${action.color.replace('bg-', 'shadow-')}/30`} suppressHydrationWarning>
                           <Icon className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
                         </div>
                         <h3 className="font-semibold text-brand-black text-base lg:text-lg mb-1">
@@ -177,7 +189,7 @@ export function StatsSection() {
                         </p>
                         
                         {/* Arrow indicator */}
-                        <div className="mt-3 flex items-center gap-1 text-brand-red font-medium group-hover:gap-2 transition-all duration-300">
+                        <div className="mt-3 flex items-center gap-1 text-brand-red font-medium group-hover:gap-2 transition-all duration-300" suppressHydrationWarning>
                           <span className="text-xs">Keşfet</span>
                           <ChevronRight className="w-3.5 h-3.5" />
                         </div>
@@ -246,6 +258,23 @@ export function StatsSection() {
               </motion.div>
             );
           })}
+        </motion.div>
+
+        {/* Devam Et Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex justify-center mt-16"
+        >
+          <button
+            onClick={handleScrollToServices}
+            className="bg-brand-red hover:bg-brand-red-dark text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation"
+            aria-label="Devam Et"
+          >
+            <ChevronDown className="w-6 h-6" />
+          </button>
         </motion.div>
       </div>
     </section>

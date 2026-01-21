@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Truck, Battery, Disc, Fuel, Key, Wrench, ChevronRight, X, Check, Clock, Phone } from "lucide-react";
+import { Truck, Battery, Disc, Fuel, Key, Wrench, ChevronRight, ChevronDown, X, Check, Clock, Phone } from "lucide-react";
 import { useSettings } from "@/lib/settings-context";
 
 const services = [
@@ -157,8 +157,16 @@ export function ServicesSection() {
   const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
   const { settings } = useSettings();
 
-  // Format phone for tel: links (remove spaces)
-  const phoneLink = settings.phone.replace(/\s/g, "");
+  // ServicesSection phone number is hardcoded (not from settings)
+  const servicesPhone = "0850 242 0 155";
+  const phoneLink = servicesPhone.replace(/\s/g, "");
+
+  const handleScrollToPackages = () => {
+    const packagesSection = document.getElementById('packages');
+    if (packagesSection) {
+      packagesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <section id="services" className="py-20 lg:py-28 relative overflow-hidden">
@@ -244,6 +252,23 @@ export function ServicesSection() {
               </motion.div>
             );
           })}
+        </motion.div>
+
+        {/* Devam Et Button - Below Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex justify-center mt-12"
+        >
+          <button
+            onClick={handleScrollToPackages}
+            className="bg-brand-red hover:bg-brand-red-dark text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation"
+            aria-label="Devam Et"
+          >
+            <ChevronDown className="w-6 h-6" />
+          </button>
         </motion.div>
       </div>
 
@@ -364,6 +389,24 @@ export function ServicesSection() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Devam Et Button */}
+      <motion.div
+        id="services-devam-et"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="text-center mt-16"
+      >
+        <button
+          onClick={handleScrollToPackages}
+          className="bg-brand-red hover:bg-brand-red-dark text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation"
+          aria-label="Devam Et"
+        >
+          <ChevronDown className="w-6 h-6" />
+        </button>
+      </motion.div>
     </section>
   );
 }

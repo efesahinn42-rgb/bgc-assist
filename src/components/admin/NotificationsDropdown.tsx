@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Bell, FileText, AlertCircle, CheckCircle, Loader2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,6 +23,7 @@ interface NotificationsData {
 }
 
 export function NotificationsDropdown() {
+  const { status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -30,11 +32,13 @@ export function NotificationsDropdown() {
   const router = useRouter();
 
   useEffect(() => {
-    fetchNotifications();
-    // Refresh notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    if (status === "authenticated") {
+      fetchNotifications();
+      // Refresh notifications every 30 seconds
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [status]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -49,6 +53,7 @@ export function NotificationsDropdown() {
   }, []);
 
   const fetchNotifications = async () => {
+    if (status !== "authenticated") return;
     setIsLoading(true);
     try {
       const res = await fetch("/api/notifications");
@@ -155,9 +160,8 @@ export function NotificationsDropdown() {
                     <button
                       key={notification.id}
                       onClick={() => handleNotificationClick(notification)}
-                      className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                        !notification.read ? "bg-blue-50/50 dark:bg-blue-900/10" : ""
-                      }`}
+                      className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${!notification.read ? "bg-blue-50/50 dark:bg-blue-900/10" : ""
+                        }`}
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 mt-0.5">

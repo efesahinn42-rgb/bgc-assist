@@ -348,7 +348,7 @@ async function main() {
 
   // Create initial site settings
   const settingsData = [
-    { key: "phone", value: "0530 232 27 42", type: "text", group: "contact" },
+    { key: "phone", value: "0850 888 0 155", type: "text", group: "contact" },
     { key: "email", value: "info@bgcassist.com", type: "text", group: "contact" },
     { key: "whatsapp", value: "905302322742", type: "text", group: "contact" },
     { key: "address", value: "Akabe, Şht. Furkan Doğan Cd. Bey Plaza Kat:1 No:3/122, 42020 Karatay/Konya", type: "text", group: "contact" },
