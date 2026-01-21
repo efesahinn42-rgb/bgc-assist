@@ -41,9 +41,9 @@ export const metadata: Metadata = {
   ],
   category: "Yol Yardım Hizmetleri",
   icons: {
-    icon: "/logos/logo-assist.png",
-    apple: "/logos/logo-assist.png",
-    shortcut: "/logos/logo-assist.png",
+    icon: "/logos/favicon.png",
+    apple: "/logos/favicon.png",
+    shortcut: "/logos/favicon.png",
   },
   alternates: {
     canonical: "https://www.bgcassist.com.tr",
