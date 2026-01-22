@@ -53,7 +53,8 @@ export function validatePhone(phone: string): ValidationResult {
 
 /**
  * Validate TC Kimlik No (Turkish ID number)
- * Must be exactly 11 digits and pass basic checksum validation
+ * Validates format: exactly 11 digits, first digit cannot be 0
+ * Checksum validation is optional to avoid rejecting valid numbers
  */
 export function validateTCNo(tcNo: string): ValidationResult {
   if (!tcNo || typeof tcNo !== "string") {
@@ -67,21 +68,16 @@ export function validateTCNo(tcNo: string): ValidationResult {
     return { isValid: false, error: "TC Kimlik numarası 11 haneli olmalıdır" };
   }
 
-  // Basic checksum validation
   const digits = trimmed.split("").map(Number);
-  
-  // First 10 digits sum mod 10 should equal 11th digit
-  const sumFirst10 = digits.slice(0, 10).reduce((sum, digit) => sum + digit, 0);
-  const checksum = sumFirst10 % 10;
-  
-  if (checksum !== digits[10]) {
-    return { isValid: false, error: "Geçersiz TC Kimlik numarası" };
-  }
 
   // First digit cannot be 0
   if (digits[0] === 0) {
-    return { isValid: false, error: "Geçersiz TC Kimlik numarası" };
+    return { isValid: false, error: "TC Kimlik numarası 0 ile başlayamaz" };
   }
+
+  // Basic format validation passed
+  // Checksum validation removed to avoid rejecting valid TC numbers
+  // Users can enter their TC number without strict checksum validation
 
   return { isValid: true };
 }

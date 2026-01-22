@@ -1,0 +1,19 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "backendAuthType": "API key",
+  "backendApiKey": "cursor",
+  "backendApiValue": "sk-user-079O8fhuwLfTUkvaaPDvknwXARNtNxQZQrgRjQbYAW-nVo6lVOSIqPp2C3Uc9chWmwWyMwSi7_fExy3ld4Pd9udy1lJeWJFcggCzzSJj9xjSo9NsVwNkooP9MwqVQUOv9tY\"",
+  "executionArgs": {
+    "projectName": "bgcassist",
+    "projectPath": "/Users/busrasimayavsan/Desktop/PROJELER/bgcassistcursor/bgcassist",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-079O8fhuwLfTUkvaaPDvknwXARNtNxQZQrgRjQbYAW-nVo6lVOSIqPp2C3Uc9chWmwWyMwSi7_fExy3ld4Pd9udy1lJeWJFcggCzzSJj9xjSo9NsVwNkooP9MwqVQUOv9tY"
+    }
+  },
+  "proxy": "http://cbcf1bb8-a644-49a0-9ba5-dff051898206:RBtHUlyYcz304CjvmRC2OaPaslIGIwo7@tun.testsprite.com:8080"
+}

@@ -1,0 +1,555 @@
+[
+  {
+    "id": "TC001",
+    "title": "Multi-step service request form completion success",
+    "description": "Verify that a user can successfully complete all steps of the multi-step online assistance request form with valid inputs and receive a confirmation message.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the service request form starting page"
+      },
+      {
+        "type": "action",
+        "description": "Input a valid vehicle plate number without spaces or special characters"
+      },
+      {
+        "type": "action",
+        "description": "Input a valid national ID number"
+      },
+      {
+        "type": "action",
+        "description": "Provide location via GPS (simulate permission granted)"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to problem selection step"
+      },
+      {
+        "type": "action",
+        "description": "Select an issue type from dropdown (Breakdown, Accident, Out of Fuel)"
+      },
+      {
+        "type": "action",
+        "description": "Review request summary page"
+      },
+      {
+        "type": "action",
+        "description": "Submit the service request form"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that confirmation message appears indicating rescue team dispatched"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Multi-step form validation for license plate input",
+    "description": "Ensure license plate input validation enforces format rules disallowing spaces or special characters and requires non-empty input.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the license plate entry step in the multi-step form"
+      },
+      {
+        "type": "action",
+        "description": "Enter license plate with spaces or special characters"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to proceed to next form step"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation error message shows for invalid license plate"
+      },
+      {
+        "type": "action",
+        "description": "Enter an empty license plate input"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to proceed further"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify mandatory field validation error message appears"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Location input validation when GPS permission denied",
+    "description": "Verify that when GPS permission is denied, manual location input is mandatory and must be validated before form submission.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Start service request form and deny GPS location permission"
+      },
+      {
+        "type": "action",
+        "description": "Leave manual location input empty"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to proceed to next step"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm validation error message requiring location input is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid manual location (city and district)"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to the next step"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm form allows proceeding after valid location input"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Insurance policy limits and benefits progress bar display",
+    "description": "Check that after user login, insurance or assistance package limits and remaining benefits are correctly displayed with intuitive progress bars.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a user with active insurance policies"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to insurance policy limit page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify progress bars display correct usage and remaining benefits visually"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify data matches API responses and updates on data refresh"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Admin login success and role-based access control enforcement",
+    "description": "Verify admin users with roles SUPER_ADMIN, ADMIN, and EDITOR can log in successfully and have their permissions accurately enforced.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt login with valid SUPER_ADMIN credentials"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm successful login and access to all admin features"
+      },
+      {
+        "type": "action",
+        "description": "Log out and login with valid ADMIN credentials"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm access to allowed admin features and restricted areas are blocked"
+      },
+      {
+        "type": "action",
+        "description": "Log out and login with valid EDITOR credentials"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm restricted permissions reflecting role, cannot edit packages or delete content"
+      },
+      {
+        "type": "action",
+        "description": "Attempt unauthorized action for each role (e.g., EDITOR trying to delete a package)"
+      },
+      {
+        "type": "assertion",
+        "description": "Check system denies the action with proper error or UI restriction"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Admin panel CRUD operations for road assistance packages",
+    "description": "Verify that admin users can create, read, update, and delete road assistance packages with all required validations and UI updates.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin (SUPER_ADMIN or ADMIN)"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to packages management page"
+      },
+      {
+        "type": "action",
+        "description": "Create a new package with valid data"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm package is saved and visible in the list"
+      },
+      {
+        "type": "action",
+        "description": "Edit the created package details"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm updates are saved and reflected immediately"
+      },
+      {
+        "type": "action",
+        "description": "Delete the created package"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm package is removed from list and database"
+      },
+      {
+        "type": "action",
+        "description": "Try creating a package with missing mandatory fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify proper validation error messages appear"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Admin panel CRUD operations for road assistance services",
+    "description": "Verify admin users can fully manage services including towing, battery support, tire, and fuel services with all CRUD operations and validations.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin user"
+      },
+      {
+        "type": "action",
+        "description": "Open services management page"
+      },
+      {
+        "type": "action",
+        "description": "Create a new service with all required valid fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm new service is listed and details are correct"
+      },
+      {
+        "type": "action",
+        "description": "Edit the service details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changes saved and displayed accurately"
+      },
+      {
+        "type": "action",
+        "description": "Delete the service"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm service is removed successfully"
+      },
+      {
+        "type": "action",
+        "description": "Try creating a service without mandatory fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Check validation errors are triggered and user is notified"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Hero slider management with image upload and content editing",
+    "description": "Verify admin users can upload images via Vercel Blob, create, edit, and delete hero slider items with correct content displayed on the homepage.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and navigate to hero sliders management page"
+      },
+      {
+        "type": "action",
+        "description": "Create a new slider item by uploading an image with supported format"
+      },
+      {
+        "type": "action",
+        "description": "Input slider content such as headline and subtext"
+      },
+      {
+        "type": "action",
+        "description": "Save the new slider item"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm slider appears in admin list and on homepage hero section after refresh"
+      },
+      {
+        "type": "action",
+        "description": "Edit the slider content and replace image"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updates appear correctly on homepage"
+      },
+      {
+        "type": "action",
+        "description": "Delete a slider item"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm removal from both admin and public views"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Email notifications on application submission",
+    "description": "Ensure that when users submit assistance applications, the system sends email notifications via Resend API successfully and catches errors gracefully.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Submit a multi-step service request form successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify email notification is sent to user and admin email addresses via Resend API"
+      },
+      {
+        "type": "action",
+        "description": "Simulate Resend API failure during email sending"
+      },
+      {
+        "type": "assertion",
+        "description": "Check system logs error and shows a user-friendly message without form data loss"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Responsive design verification across devices",
+    "description": "Validate that the responsive web platform UI works flawlessly on various device viewports from iPhone SE up to 4K monitors with no layout break or overflow.",
+    "category": "ui",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the website home page on devices/emulated screen sizes: iPhone SE, iPhone 13 Pro, iPad, desktop 1080p, and 4K monitor"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that all UI elements including buttons, forms, menus, and layout respond correctly without horizontal scroll or overlapping"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify Tailwind CSS utility classes apply expected styling and spacing at each breakpoint"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Accessibility compliance with WCAG 2.1 AA standards",
+    "description": "Verify all buttons, inputs, and interactive elements have proper aria-labels and color contrast meets WCAG 2.1 AA level requirements.",
+    "category": "ui",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Run accessibility audit suite (e.g., axe) on home page and service request forms"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm no violations on aria-labels, focus order, keyboard navigation, and color contrast"
+      },
+      {
+        "type": "action",
+        "description": "Manually verify buttons, inputs and navigation elements have meaningful screen reader labels"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "SEO structured data and sitemap verification",
+    "description": "Verify that the site includes correct structured data markup according to Schema.org, sitemap.xml is complete and robots.txt disallows unwanted crawling.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access homepage source and verify presence of valid JSON-LD structured data"
+      },
+      {
+        "type": "assertion",
+        "description": "Check structured data validates without errors using Google Structured Data Testing Tool"
+      },
+      {
+        "type": "action",
+        "description": "Fetch sitemap.xml and verify all relevant pages are listed"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm sitemap URLs are accessible and contain timestamps"
+      },
+      {
+        "type": "action",
+        "description": "Fetch robots.txt and verify it includes correct directives for search engine bots"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Graceful error handling on insurance policy data API failure",
+    "description": "Ensure the UI shows a friendly error message instructing users to call support if the insurance policy data API is unavailable or returns an error.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate insurance policy data API failure scenario"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to insurance policy limit check page as logged-in user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user sees a clear error message instructing to contact support by phone"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm no unhandled exceptions or UI crashes occur"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Loading states with skeleton loaders and spinners",
+    "description": "Verify that proper loading indicators like skeleton loaders or spinners appear during data fetching or API call latency periods across critical user flows.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger loading states by throttling network or mocking API delays on service request form data dropdowns"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm skeleton loaders or spinner animations display clearly and disappear once data loads"
+      },
+      {
+        "type": "action",
+        "description": "Navigate through admin pages with data fetching (packages, services, applications)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify consistent loading states appear before content renders"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Global search functionality in admin panel",
+    "description": "Validate that the global search input returns relevant results instantly for users, packages, and services and supports notifications filtering.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and access global search input"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid keywords matching user names, service titles, and package names"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that search results display matching items categorized by type"
+      },
+      {
+        "type": "action",
+        "description": "Filter notifications using search field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify notifications list updates correctly matching the query"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Statistics API returns accurate application counts and KPIs",
+    "description": "Test that the admin dashboard statistics API returns correct application counts and relevant KPIs reflecting recent data accurately.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and make requests to statistics API endpoint"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response contains correct counts for application submissions in various time frames"
+      },
+      {
+        "type": "assertion",
+        "description": "Check accuracy of key performance indicators matches database state"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Admin site settings update and visibility",
+    "description": "Verify that admin users can update site settings including contact info, social media links, and working hours, and ensure changes reflect on the public site.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and navigate to site settings page"
+      },
+      {
+        "type": "action",
+        "description": "Modify contact phone, email, social media URLs, and working hours"
+      },
+      {
+        "type": "action",
+        "description": "Save changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm settings persist after page refresh and in database"
+      },
+      {
+        "type": "action",
+        "description": "Visit public site pages to verify updated contact info and working hours appear"
+      }
+    ]
+  }
+]

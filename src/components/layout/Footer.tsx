@@ -98,6 +98,8 @@ export function Footer() {
                   height={0}
                   sizes="200px"
                   className="h-12 w-auto object-contain"
+                  loading="eager"
+                  priority
                 />
               </div>
             </Link>

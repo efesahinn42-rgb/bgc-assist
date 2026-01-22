@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "testadminauthenticationrolebasedaccesscontrol",
+    "description": "Verify that the admin authentication system correctly enforces role-based access control for SUPER_ADMIN, ADMIN, and EDITOR roles, restricting permissions appropriately in the admin panel."
+  },
+  {
+    "id": "TC002",
+    "title": "testpackagescrudoperations",
+    "description": "Test the CRUD operations for road assistance packages via the packages API endpoints, ensuring admins can create, edit, delete packages and public users can view and purchase packages."
+  },
+  {
+    "id": "TC003",
+    "title": "testservicescrudoperations",
+    "description": "Validate the CRUD operations for road assistance services through the services API endpoints, confirming admin management and public viewing functionality."
+  },
+  {
+    "id": "TC004",
+    "title": "testapplicationsubmissionandretrieval",
+    "description": "Test the multi-step application form submission and retrieval via the applications API endpoints, including email notification sending upon submission."
+  },
+  {
+    "id": "TC005",
+    "title": "testslidermanagementwithimageupload",
+    "description": "Verify the hero slider management API endpoints for creating, editing, deleting slider items and uploading images using Vercel Blob storage."
+  },
+  {
+    "id": "TC006",
+    "title": "testsettingsmanagement",
+    "description": "Test the site settings API endpoint for updating and retrieving contact info, social media links, and working hours by admin and public users respectively."
+  },
+  {
+    "id": "TC007",
+    "title": "testemailnotificationsviaresendapi",
+    "description": "Validate the email sending functionality using the Resend API to ensure application event notifications are sent and received correctly."
+  },
+  {
+    "id": "TC008",
+    "title": "testlocationdataapi",
+    "description": "Test the location data API endpoints for cities and districts to ensure they provide accurate and dynamic data for form dropdowns."
+  },
+  {
+    "id": "TC009",
+    "title": "testadminsearchandnotificationsystem",
+    "description": "Verify the global search and notifications API endpoints in the admin panel for efficient content management and real-time updates."
+  },
+  {
+    "id": "TC010",
+    "title": "teststatisticsapi",
+    "description": "Test the statistics API endpoint to ensure it returns correct metrics on application counts and other KPIs for the admin dashboard."
+  }
+]

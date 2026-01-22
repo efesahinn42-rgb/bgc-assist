@@ -35,7 +35,6 @@ export const vehicleBrandCategories: VehicleBrandCategory[] = [
       "Dacia",
       "Lada",
       "Tofaş",
-      "Dacia",
       "Chevrolet",
       "Jeep",
       "Chrysler",

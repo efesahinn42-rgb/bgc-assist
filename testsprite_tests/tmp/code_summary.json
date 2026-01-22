@@ -1,0 +1,177 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "Next.js 16.1.1",
+    "React 19.2.3",
+    "PostgreSQL",
+    "Prisma ORM",
+    "NextAuth",
+    "Tailwind CSS",
+    "Framer Motion",
+    "Resend (Email)",
+    "Vercel Blob (File Storage)"
+  ],
+  "features": [
+    {
+      "name": "Authentication & Admin Panel",
+      "description": "Admin authentication system with role-based access control (SUPER_ADMIN, ADMIN, EDITOR). Admin panel for managing all site content.",
+      "files": [
+        "src/lib/auth.ts",
+        "src/app/admin/login/page.tsx",
+        "src/app/admin/layout.tsx",
+        "src/app/admin/page.tsx",
+        "src/app/api/auth/[...nextauth]/route.ts",
+        "src/components/admin/AdminHeader.tsx",
+        "src/components/admin/AdminSidebar.tsx",
+        "src/components/admin/UserDropdown.tsx",
+        "src/components/admin/UserManagementModal.tsx",
+        "src/components/admin/PasswordChangeModal.tsx"
+      ]
+    },
+    {
+      "name": "Package Management",
+      "description": "CRUD operations for road assistance packages. Admin can create, edit, delete packages. Public can view and purchase packages.",
+      "files": [
+        "src/app/admin/packages/page.tsx",
+        "src/app/admin/packages/new/page.tsx",
+        "src/app/admin/packages/[id]/edit/page.tsx",
+        "src/app/api/packages/route.ts",
+        "src/app/api/packages/[id]/route.ts",
+        "src/components/sections/PackagesSection.tsx",
+        "src/lib/packages-data.ts"
+      ]
+    },
+    {
+      "name": "Service Management",
+      "description": "CRUD operations for road assistance services (towing, battery, tire, fuel, etc.). Admin manages services, public views them.",
+      "files": [
+        "src/app/admin/services/page.tsx",
+        "src/app/admin/services/new/page.tsx",
+        "src/app/admin/services/[id]/edit/page.tsx",
+        "src/app/api/services/route.ts",
+        "src/app/api/services/[id]/route.ts",
+        "src/components/sections/ServicesSection.tsx"
+      ]
+    },
+    {
+      "name": "Application/Form Management",
+      "description": "Package purchase application form system. Users fill multi-step form, applications are stored and emails are sent.",
+      "files": [
+        "src/components/modals/PurchaseModal.tsx",
+        "src/context/PurchaseModalContext.tsx",
+        "src/app/admin/applications/page.tsx",
+        "src/app/admin/applications/[id]/page.tsx",
+        "src/app/api/applications/route.ts",
+        "src/app/api/applications/[id]/route.ts",
+        "src/app/api/applications/export/route.ts"
+      ]
+    },
+    {
+      "name": "Slider Management",
+      "description": "Hero slider management system. Admin can create, edit, delete slider items with images and content.",
+      "files": [
+        "src/app/admin/sliders/page.tsx",
+        "src/app/admin/sliders/new/page.tsx",
+        "src/app/admin/sliders/[id]/edit/page.tsx",
+        "src/app/api/sliders/route.ts",
+        "src/app/api/sliders/[id]/route.ts",
+        "src/app/api/sliders/upload/route.ts",
+        "src/components/sections/HeroSection.tsx"
+      ]
+    },
+    {
+      "name": "Settings Management",
+      "description": "Site settings management (contact info, social media, working hours). Admin can update settings, public can view them.",
+      "files": [
+        "src/app/admin/settings/page.tsx",
+        "src/app/api/settings/route.ts",
+        "src/lib/settings-context.tsx"
+      ]
+    },
+    {
+      "name": "Email Service",
+      "description": "Email sending service using Resend API. Sends application notifications and other emails.",
+      "files": [
+        "src/lib/email.ts"
+      ]
+    },
+    {
+      "name": "File Upload",
+      "description": "File upload service using Vercel Blob. Handles image uploads for sliders and other content.",
+      "files": [
+        "src/lib/blob-upload.ts",
+        "src/app/api/sliders/upload/route.ts"
+      ]
+    },
+    {
+      "name": "Public Website Sections",
+      "description": "Public-facing website sections including hero, stats, services, packages, features, and CTA sections.",
+      "files": [
+        "src/app/page.tsx",
+        "src/components/sections/HeroSection.tsx",
+        "src/components/sections/StatsSection.tsx",
+        "src/components/sections/ServicesSection.tsx",
+        "src/components/sections/PackagesSection.tsx",
+        "src/components/sections/FeaturesSection.tsx",
+        "src/components/sections/CTASection.tsx",
+        "src/components/layout/Header.tsx",
+        "src/components/layout/Footer.tsx",
+        "src/components/layout/TopBar.tsx"
+      ]
+    },
+    {
+      "name": "API Utilities & Validation",
+      "description": "API utility functions, validation helpers, and error handling for all API routes.",
+      "files": [
+        "src/lib/api-utils.ts",
+        "src/lib/validation.ts",
+        "src/lib/logger.ts"
+      ]
+    },
+    {
+      "name": "Location Data",
+      "description": "City and district data management. Provides location data for forms and applications.",
+      "files": [
+        "src/app/api/cities/route.ts",
+        "src/app/api/districts/route.ts",
+        "src/lib/cities-data.ts",
+        "src/lib/districts-data.ts"
+      ]
+    },
+    {
+      "name": "Vehicle Brands Data",
+      "description": "Vehicle brand and category data for application forms.",
+      "files": [
+        "src/app/api/vehicle-brands/route.ts",
+        "src/lib/vehicle-brands-data.ts"
+      ]
+    },
+    {
+      "name": "Admin Search & Notifications",
+      "description": "Global search functionality and notifications system for admin panel.",
+      "files": [
+        "src/app/api/admin/search/route.ts",
+        "src/app/api/notifications/route.ts",
+        "src/components/admin/GlobalSearch.tsx",
+        "src/components/admin/NotificationsDropdown.tsx"
+      ]
+    },
+    {
+      "name": "Statistics API",
+      "description": "Statistics endpoint for admin dashboard showing application counts and metrics.",
+      "files": [
+        "src/app/api/statistics/route.ts"
+      ]
+    },
+    {
+      "name": "SEO & Structured Data",
+      "description": "SEO optimization with structured data (Schema.org), sitemap, and robots.txt.",
+      "files": [
+        "src/app/layout.tsx",
+        "src/app/sitemap.ts",
+        "src/app/robots.ts",
+        "src/components/SEO/StructuredData.tsx"
+      ]
+    }
+  ]
+}

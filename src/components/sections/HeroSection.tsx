@@ -154,7 +154,7 @@ const staticSliders: Slider[] = [
 const carBrands = [
   { name: "Ford", slug: "ford" },
   { name: "Volkswagen", slug: "volkswagen" },
-  { name: "Mercedes", slug: "mercedes" },
+  { name: "Mercedes", slug: "mercedes-benz" },
   { name: "BMW", slug: "bmw" },
   { name: "Toyota", slug: "toyota" },
   { name: "Renault", slug: "renault" },
@@ -222,6 +222,8 @@ export function HeroSection() {
               width={0}
               height={0}
               sizes="(max-width: 768px) 120px, 160px"
+              loading="eager"
+              priority
               className="h-12 md:h-14 lg:h-16 w-auto object-contain"
               style={{
                 // Şeffaf arka planlı logo için sadeleştirilmiş stil
@@ -409,6 +411,10 @@ export function HeroSection() {
                     src={`https://www.carlogos.org/car-logos/${brand.slug}-logo.png`}
                     alt={brand.name}
                     className="h-10 lg:h-14 w-auto object-contain opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0"
+                    onError={(e) => {
+                      // Fallback: hide broken images
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
                   />
                 </div>
               ))}
@@ -423,6 +429,10 @@ export function HeroSection() {
                     src={`https://www.carlogos.org/car-logos/${brand.slug}-logo.png`}
                     alt={brand.name}
                     className="h-10 lg:h-14 w-auto object-contain opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0"
+                    onError={(e) => {
+                      // Fallback: hide broken images
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
                   />
                 </div>
               ))}
