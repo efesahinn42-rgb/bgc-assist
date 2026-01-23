@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Phone, ChevronRight, Clock, MapPin, Shield } from "lucide-react";
 import { getDefaultPackage } from "@/lib/packages-data";
@@ -19,7 +20,7 @@ export function CTASection() {
 
   // Format phone for tel: links (remove spaces)
   const phoneLink = settings.phone.replace(/\s/g, "");
-  
+
   // Online Yardım Talebi phone number (hardcoded)
   const onlineYardimPhone = "0850 888 0 155";
   const onlineYardimLink = onlineYardimPhone.replace(/\s/g, "");

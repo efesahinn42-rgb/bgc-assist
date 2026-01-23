@@ -309,32 +309,59 @@ export function HeroSection() {
                         </Button>
                       </div>
 
-                      {/* Dynamic Stats */}
-                      {slide.stats && slide.stats.length > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 1 }}
-                          className="flex flex-wrap items-center gap-6 lg:gap-8 mt-12 pt-8 border-t border-brand-white/10"
-                        >
-                          {slide.stats.map((stat, statIndex) => {
-                            const StatIcon = iconMap[stat.icon] || Clock;
-                            return (
-                              <div key={statIndex} className="flex items-center gap-3">
-                                <div className={`w-12 h-12 rounded-xl ${colors.bg}/20 flex items-center justify-center`}>
-                                  <StatIcon className={`w-6 h-6 ${colors.text}`} />
-                                </div>
-                                <div>
-                                  <div className="text-2xl font-bold text-brand-white" suppressHydrationWarning>{stat.value}</div>
-                                  <div className="text-sm text-brand-white/60" suppressHydrationWarning>{stat.label}</div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </motion.div>
-                      )}
                     </motion.div>
                   </div>
+
+                  {/* Car Brands Marquee - Full Width at Bottom */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.2 }}
+                    className="absolute bottom-20 left-0 w-full z-20 py-4 bg-gradient-to-r from-transparent via-brand-black/20 to-transparent backdrop-blur-[2px]"
+                  >
+                    <div className="relative overflow-hidden">
+                      {/* Gradient overlays for fade effect */}
+                      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-brand-black/40 to-transparent z-10" />
+                      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-brand-black/40 to-transparent z-10" />
+
+                      <div className="flex animate-marquee items-center whitespace-nowrap group">
+                        {/* First set of logos */}
+                        {carBrands.map((brand, index) => (
+                          <div
+                            key={`slider-full-first-${index}`}
+                            className="flex-shrink-0 mx-10 lg:mx-14 flex items-center justify-center"
+                            title={brand.name}
+                          >
+                            <img
+                              src={`https://www.carlogos.org/car-logos/${brand.slug}-logo.png`}
+                              alt={brand.name}
+                              className="h-10 lg:h-12 w-auto object-contain opacity-80 brightness-[2.5] grayscale contrast-150 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] hover:grayscale-0 hover:brightness-100 hover:contrast-100 hover:scale-110 hover:opacity-100 transition-all duration-300 cursor-pointer"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        ))}
+                        {/* Duplicate set for seamless loop */}
+                        {carBrands.map((brand, index) => (
+                          <div
+                            key={`slider-full-second-${index}`}
+                            className="flex-shrink-0 mx-10 lg:mx-14 flex items-center justify-center"
+                            title={brand.name}
+                          >
+                            <img
+                              src={`https://www.carlogos.org/car-logos/${brand.slug}-logo.png`}
+                              alt={brand.name}
+                              className="h-10 lg:h-12 w-auto object-contain opacity-80 brightness-[2.5] grayscale contrast-150 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] hover:grayscale-0 hover:brightness-100 hover:contrast-100 hover:scale-110 hover:opacity-100 transition-all duration-300 cursor-pointer"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
                 </div>
               </div>
             </SwiperSlide>
@@ -343,102 +370,18 @@ export function HeroSection() {
       </Swiper>
 
       {/* Keşfet Button */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30">
         <motion.button
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
+          transition={{ delay: 1.5, duration: 0.6 }}
           onClick={handleScrollToStats}
-          className="flex flex-col items-center gap-2 text-brand-white/90 hover:text-brand-white transition-colors group"
+          className="flex flex-col items-center gap-1 text-brand-white/70 hover:text-brand-white transition-colors group scale-90 md:scale-100"
           aria-label="Keşfet"
         >
-          <span className="text-sm font-medium">Keşfet</span>
-          <ChevronDown className="w-6 h-6 animate-bounce group-hover:animate-none" />
+          <span className="text-xs font-medium uppercase tracking-widest">Keşfet</span>
+          <ChevronDown className="w-5 h-5 animate-bounce group-hover:animate-none" />
         </motion.button>
-      </div>
-
-      {/* Car Brands Marquee */}
-      <div className="relative z-20 -mt-16 lg:-mt-20">
-        <div className="bg-gradient-to-b from-slate-100 via-stone-100 to-gray-100 py-12 lg:py-16 relative overflow-hidden">
-          {/* Subtle Dot Pattern */}
-          <div className="absolute inset-0 opacity-[0.5]">
-            <div className="absolute inset-0" style={{
-              backgroundImage: `radial-gradient(circle at 1px 1px, rgba(220, 38, 38, 0.06) 1px, transparent 0)`,
-              backgroundSize: '32px 32px',
-            }} />
-          </div>
-
-          {/* Decorative line */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-red/20 to-transparent" />
-
-          <div className="container mx-auto px-4 lg:px-8 relative">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="flex flex-col items-center gap-6"
-            >
-              {/* Devam Et Button */}
-              <button
-                onClick={handleScrollToStats}
-                className="bg-brand-red hover:bg-brand-red-dark text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation"
-                aria-label="Devam Et"
-              >
-                <ChevronDown className="w-6 h-6" />
-              </button>
-
-              <p className="text-center text-brand-gray text-sm mb-8 font-medium uppercase tracking-widest">
-                Tüm Araç Markalarına Hizmet Veriyoruz
-              </p>
-            </motion.div>
-          </div>
-
-          <div className="relative overflow-hidden py-6">
-            {/* Gradient overlays for fade effect */}
-            <div className="absolute left-0 top-0 bottom-0 w-32 lg:w-48 bg-gradient-to-r from-stone-100 via-stone-100/80 to-transparent z-10" />
-            <div className="absolute right-0 top-0 bottom-0 w-32 lg:w-48 bg-gradient-to-l from-stone-100 via-stone-100/80 to-transparent z-10" />
-
-            {/* Scrolling container */}
-            <div className="flex animate-marquee items-center">
-              {/* First set of logos */}
-              {carBrands.map((brand, index) => (
-                <div
-                  key={`first-${index}`}
-                  className="flex-shrink-0 mx-8 lg:mx-12 flex items-center justify-center group"
-                  title={brand.name}
-                >
-                  <img
-                    src={`https://www.carlogos.org/car-logos/${brand.slug}-logo.png`}
-                    alt={brand.name}
-                    className="h-10 lg:h-14 w-auto object-contain opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0"
-                    onError={(e) => {
-                      // Fallback: hide broken images
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-              ))}
-              {/* Duplicate set for seamless loop */}
-              {carBrands.map((brand, index) => (
-                <div
-                  key={`second-${index}`}
-                  className="flex-shrink-0 mx-8 lg:mx-12 flex items-center justify-center group"
-                  title={brand.name}
-                >
-                  <img
-                    src={`https://www.carlogos.org/car-logos/${brand.slug}-logo.png`}
-                    alt={brand.name}
-                    className="h-10 lg:h-14 w-auto object-contain opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0"
-                    onError={(e) => {
-                      // Fallback: hide broken images
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

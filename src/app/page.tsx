@@ -37,7 +37,7 @@ export default function Home() {
     <SettingsProvider>
       <PurchaseModalProvider>
         <Header />
-        <main>
+        <main className="relative">
           <HeroSection />
           <StatsSection />
           <ServicesSection />

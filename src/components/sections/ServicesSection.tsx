@@ -170,9 +170,9 @@ export function ServicesSection() {
 
   return (
     <section id="services" className="py-20 lg:py-28 relative overflow-hidden">
-      {/* Warm Gray Gradient Background - slightly darker than StatsSection */}
-      <div className="absolute inset-0 bg-gradient-to-br from-stone-100 via-gray-100 to-slate-100" />
-      
+      {/* Refined Soft Background */}
+      <div className="absolute inset-0 bg-slate-100/80" />
+
       {/* Subtle Dot Pattern */}
       <div className="absolute inset-0 opacity-[0.5]">
         <div className="absolute inset-0" style={{
@@ -180,11 +180,11 @@ export function ServicesSection() {
           backgroundSize: '32px 32px',
         }} />
       </div>
-      
+
       {/* Decorative Elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-red/20 to-transparent" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-red/20 to-transparent" />
-      
+
       {/* Soft gradient orbs */}
       <div className="absolute top-40 -right-20 w-[600px] h-[600px] bg-gradient-to-br from-rose-100/50 to-transparent rounded-full blur-3xl" />
       <div className="absolute -bottom-20 -left-20 w-[500px] h-[500px] bg-gradient-to-tr from-orange-100/50 to-transparent rounded-full blur-3xl" />
@@ -198,7 +198,7 @@ export function ServicesSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-block bg-brand-red/10 text-brand-red px-5 py-2.5 rounded-full text-sm font-semibold mb-4 border border-brand-red/20">
+          <span className="inline-block bg-brand-red/10 text-brand-red px-5 py-2.5 rounded-full text-sm font-semibold mb-4 border border-brand-red/20 uppercase tracking-widest">
             Hizmetlerimiz
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-brand-black mb-6">
@@ -227,20 +227,20 @@ export function ServicesSection() {
                   <CardContent className="p-0 relative">
                     {/* Colored top bar */}
                     <div className={`h-1.5 ${service.color}`} />
-                    
+
                     <div className="p-7 lg:p-8">
                       {/* Icon with background */}
                       <div className={`w-14 h-14 rounded-xl ${service.color} flex items-center justify-center mb-5 group-hover:scale-105 transition-transform duration-300 shadow-md ${service.color.replace('bg-', 'shadow-')}/30`}>
                         <Icon className="w-7 h-7 text-white" />
                       </div>
-                      
+
                       <h3 className="text-xl font-bold text-brand-black mb-3">
                         {service.title}
                       </h3>
                       <p className="text-brand-gray leading-relaxed mb-5 text-[15px]">
                         {service.description}
                       </p>
-                      
+
                       {/* Learn more link - always visible */}
                       <div className="flex items-center gap-1.5 text-brand-red font-semibold group-hover:gap-2.5 transition-all duration-300">
                         <span className="text-sm">Detaylı Bilgi</span>
@@ -302,7 +302,7 @@ export function ServicesSection() {
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                
+
                 {/* Close Button */}
                 <button
                   onClick={() => setSelectedService(null)}
@@ -311,7 +311,7 @@ export function ServicesSection() {
                 >
                   <X className="w-5 h-5 text-white" />
                 </button>
-                
+
                 {/* Title on Image */}
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className={`inline-flex items-center gap-2 ${selectedService.color} rounded-full px-4 py-2 mb-3`}>

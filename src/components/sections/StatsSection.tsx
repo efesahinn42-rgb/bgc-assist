@@ -3,9 +3,12 @@
 import CountUp from "react-countup";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import Image from "next/image";
 import { Users, Car, Clock, MapPin, Package, MessageCircle, HelpCircle, Phone, ChevronRight, ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSettings } from "@/lib/settings-context";
+import { ElegantShape } from "@/components/ui/shape-landing-hero";
+import { cn } from "@/lib/utils";
 
 const stats = [
   {
@@ -136,19 +139,43 @@ export function StatsSection() {
   };
 
   return (
-    <section id="stats" ref={ref} className="py-20 lg:py-28 bg-gradient-to-br from-slate-100 via-stone-100 to-gray-100 relative overflow-hidden">
-      {/* Subtle Dot Pattern */}
-      <div className="absolute inset-0 opacity-[0.5]">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(220, 38, 38, 0.06) 1px, transparent 0)`,
-          backgroundSize: '32px 32px',
-        }} />
+    <section id="stats" ref={ref} className="py-24 lg:py-32 relative overflow-hidden bg-[#030303] text-white">
+      {/* Background Shapes & Gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.05] via-transparent to-rose-500/[0.05] blur-3xl" />
+
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <ElegantShape
+          delay={0.3}
+          width={600}
+          height={140}
+          rotate={12}
+          gradient="from-indigo-500/[0.15]"
+          className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
+        />
+
+        <ElegantShape
+          delay={0.5}
+          width={500}
+          height={120}
+          rotate={-15}
+          gradient="from-rose-500/[0.15]"
+          className="right-[-5%] md:right-[0%] top-[70%] md:top-[75%]"
+        />
+
+        <ElegantShape
+          delay={0.4}
+          width={300}
+          height={80}
+          rotate={-8}
+          gradient="from-violet-500/[0.15]"
+          className="left-[5%] md:left-[10%] bottom-[5%] md:bottom-[10%]"
+        />
       </div>
-      
+
       {/* Decorative Elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-red/20 to-transparent" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-red/20 to-transparent" />
-      
+
       {/* Soft gradient orbs */}
       <div className="absolute top-20 -left-20 w-[500px] h-[500px] bg-gradient-to-br from-rose-100/50 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-20 -right-20 w-[500px] h-[500px] bg-gradient-to-tl from-orange-100/50 to-transparent rounded-full blur-3xl" />
@@ -166,28 +193,28 @@ export function StatsSection() {
             const Icon = action.icon;
             return (
               <motion.div key={index} variants={cardVariants}>
-                <a 
-                  href={action.href} 
+                <a
+                  href={action.href}
                   className="block h-full"
                   suppressHydrationWarning
                   {...(action.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                 >
-                  <Card className="h-full bg-white border-0 shadow-lg shadow-stone-200/60 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:-translate-y-1 overflow-hidden rounded-xl" suppressHydrationWarning>
+                  <Card className="h-full bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl hover:bg-white/10 transition-all duration-300 cursor-pointer group hover:-translate-y-1 overflow-hidden rounded-xl" suppressHydrationWarning>
                     <CardContent className="p-0 relative" suppressHydrationWarning>
                       {/* Colored top bar */}
                       <div className={`h-1 ${action.color}`} suppressHydrationWarning />
-                      
+
                       <div className="p-5 lg:p-6 flex flex-col items-center text-center" suppressHydrationWarning>
-                        <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-xl ${action.color} flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300 shadow-md ${action.color.replace('bg-', 'shadow-')}/30`} suppressHydrationWarning>
+                        <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-xl ${action.color} flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300 shadow-lg shadow-black/20`} suppressHydrationWarning>
                           <Icon className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
                         </div>
-                        <h3 className="font-semibold text-brand-black text-base lg:text-lg mb-1">
+                        <h3 className="font-semibold text-white text-base lg:text-lg mb-1">
                           {action.title}
                         </h3>
-                        <p className="text-xs text-brand-gray hidden sm:block">
+                        <p className="text-xs text-white/50 hidden sm:block">
                           {action.description}
                         </p>
-                        
+
                         {/* Arrow indicator */}
                         <div className="mt-3 flex items-center gap-1 text-brand-red font-medium group-hover:gap-2 transition-all duration-300" suppressHydrationWarning>
                           <span className="text-xs">Keşfet</span>
@@ -210,13 +237,25 @@ export function StatsSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-block bg-brand-red/10 text-brand-red px-5 py-2.5 rounded-full text-sm font-semibold mb-4 border border-brand-red/20">
+          <span className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-red/20 to-rose-500/20 text-brand-red px-5 py-2.5 rounded-full text-sm font-bold mb-8 border border-brand-red/30 backdrop-blur-md shadow-[0_0_20px_rgba(220,38,38,0.15)] uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-red animate-pulse" />
             Rakamlarla
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-brand-black mb-4">
-            Neden <span className="text-brand-red">BGC Assist</span>?
+          <h2 className="flex flex-col items-center justify-center gap-4 text-4xl md:text-5xl lg:text-7xl font-extrabold mb-8 tracking-tighter">
+            <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70">
+              Neden
+            </span>
+            <div className="relative h-12 md:h-16 lg:h-20 w-48 md:w-64 lg:w-80">
+              <Image
+                src="/logos/logo-assist.png"
+                alt="BGC Assist Logo"
+                fill
+                className="object-contain brightness-110 drop-shadow-[0_0_15px_rgba(220,38,38,0.3)]"
+                priority
+              />
+            </div>
           </h2>
-          <p className="text-brand-gray max-w-xl mx-auto leading-relaxed">
+          <p className="text-white/40 max-w-xl mx-auto leading-relaxed text-lg font-light">
             Yılların deneyimi ve binlerce müşterinin güveni ile hizmetinizdeyiz.
           </p>
         </motion.div>
@@ -236,11 +275,11 @@ export function StatsSection() {
                 variants={itemVariants}
                 className="text-center group"
               >
-                <div className="bg-white rounded-2xl p-8 shadow-lg shadow-stone-200/60 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                  <div className="w-16 h-16 rounded-2xl bg-brand-red flex items-center justify-center mx-auto mb-6 group-hover:scale-105 transition-all duration-300 shadow-lg shadow-brand-red/30">
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 overflow-hidden relative">
+                  <div className="w-16 h-16 rounded-2xl bg-brand-red flex items-center justify-center mx-auto mb-6 group-hover:scale-105 transition-all duration-300 shadow-xl shadow-brand-red/20">
                     <Icon className="w-8 h-8 text-white" />
                   </div>
-                  <div className="text-4xl md:text-5xl font-bold text-brand-black mb-2">
+                  <div className="text-4xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">
                     {isInView ? (
                       <CountUp
                         end={stat.value}
@@ -252,8 +291,8 @@ export function StatsSection() {
                       <span>0{stat.suffix}</span>
                     )}
                   </div>
-                  <div className="text-brand-black font-semibold mb-1">{stat.label}</div>
-                  <p className="text-brand-gray text-sm">{stat.description}</p>
+                  <div className="text-white/90 font-bold mb-1 tracking-wide">{stat.label}</div>
+                  <p className="text-white/40 text-sm font-light">{stat.description}</p>
                 </div>
               </motion.div>
             );

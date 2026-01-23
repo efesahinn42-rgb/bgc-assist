@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Clock, Users, MapPin, Shield, Headphones, Award, Zap, Heart } from "lucide-react";
 
 const features = [
@@ -61,7 +62,7 @@ const itemVariants = {
 
 export function FeaturesSection() {
   return (
-    <section id="about" className="py-20 lg:py-28 bg-brand-light relative overflow-hidden">
+    <section id="about" className="py-20 lg:py-28 bg-slate-100/80 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -78,7 +79,7 @@ export function FeaturesSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-block bg-brand-red/10 text-brand-red px-4 py-2 rounded-full text-sm font-semibold mb-4">
+          <span className="inline-block bg-brand-red/10 text-brand-red px-5 py-2.5 rounded-full text-sm font-semibold mb-4 border border-brand-red/20 uppercase tracking-widest">
             Neden Biz?
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-brand-black mb-6">
@@ -110,12 +111,12 @@ export function FeaturesSection() {
                   <div className="absolute top-4 right-4 bg-brand-red text-brand-white text-xs font-bold px-3 py-1 rounded-full">
                     {feature.highlight}
                   </div>
-                  
+
                   {/* Icon */}
                   <div className="w-16 h-16 rounded-xl bg-brand-red/10 flex items-center justify-center mb-6 group-hover:bg-brand-red group-hover:scale-110 transition-all duration-300">
                     <Icon className="w-8 h-8 text-brand-red group-hover:text-brand-white transition-colors duration-300" />
                   </div>
-                  
+
                   <h3 className="text-xl font-bold text-brand-black mb-3">
                     {feature.title}
                   </h3>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { motion } from "framer-motion";
@@ -78,8 +79,8 @@ export function PackagesSection() {
 
   return (
     <section id="packages" className="py-20 lg:py-28 relative overflow-hidden">
-      {/* Background matching other sections */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-stone-100 to-gray-100" />
+      {/* Refined Soft Background */}
+      <div className="absolute inset-0 bg-slate-100/80" />
 
       {/* Subtle Dot Pattern */}
       <div className="absolute inset-0 opacity-[0.5]">
@@ -106,7 +107,7 @@ export function PackagesSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-block bg-brand-red/10 text-brand-red px-5 py-2.5 rounded-full text-sm font-semibold mb-4 border border-brand-red/20">
+          <span className="inline-block bg-brand-red/10 text-brand-red px-5 py-2.5 rounded-full text-sm font-semibold mb-4 border border-brand-red/20 uppercase tracking-widest">
             Paketlerimiz
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-brand-black mb-6">
@@ -160,8 +161,8 @@ export function PackagesSection() {
                     )}
 
                     <Card className={`h-full overflow-hidden transition-all duration-300 hover:shadow-2xl bg-white ${pkg.popular
-                        ? "border-2 border-brand-red shadow-xl"
-                        : "border-0 shadow-lg shadow-stone-200/60 hover:shadow-xl"
+                      ? "border-2 border-brand-red shadow-xl"
+                      : "border-0 shadow-lg shadow-stone-200/60 hover:shadow-xl"
                       }`}>
                       <CardContent className="p-0">
                         {/* Header */}
@@ -211,8 +212,8 @@ export function PackagesSection() {
                           <button
                             onClick={() => openModal(pkg)}
                             className={`w-full py-4 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all duration-300 min-h-[44px] touch-manipulation ${pkg.popular
-                                ? "bg-brand-red hover:bg-brand-red-dark text-white"
-                                : "bg-brand-black hover:bg-brand-black/90 text-white"
+                              ? "bg-brand-red hover:bg-brand-red-dark text-white"
+                              : "bg-brand-black hover:bg-brand-black/90 text-white"
                               }`}
                           >
                             Hemen Satın Al
