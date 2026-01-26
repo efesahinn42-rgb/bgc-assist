@@ -179,7 +179,7 @@ model AgencyApplication {
   
   // Yetkili Bilgileri
   authorizedName String
-  email          String
+  email          String?
   phone          String
   
   // Adres Bilgileri
@@ -209,7 +209,7 @@ model SupplierApplication {
   
   // Yetkili Bilgileri
   authorizedName String
-  email          String
+  email          String?
   phone          String
   
   // Adres Bilgileri
