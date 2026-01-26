@@ -187,31 +187,31 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/logos/favicon.png",
+        url: "/logos/new-logo.png",
         sizes: "16x16",
         type: "image/png",
       },
       {
-        url: "/logos/favicon.png",
+        url: "/logos/new-logo.png",
         sizes: "32x32",
         type: "image/png",
       },
       {
-        url: "/logos/favicon.png",
+        url: "/logos/new-logo.png",
         sizes: "48x48",
         type: "image/png",
       },
     ],
     apple: [
       {
-        url: "/logos/favicon.png",
+        url: "/logos/new-logo.png",
         sizes: "180x180",
         type: "image/png",
       },
     ],
     shortcut: [
       {
-        url: "/logos/favicon.png",
+        url: "/logos/new-logo.png",
         sizes: "32x32",
         type: "image/png",
       },
@@ -229,7 +229,7 @@ export const metadata: Metadata = {
     siteName: "BGCAssist",
     images: [
       {
-        url: "/logos/favicon.png",
+        url: "/logos/new-logo.png",
         width: 512,
         height: 512,
         alt: "BGCAssist - 7/24 Premium Yol Yardım Hizmeti",
@@ -242,7 +242,7 @@ export const metadata: Metadata = {
     description: "Konya ve Türkiye genelinde 7/24 yol yardım hizmeti. Çekici, akü takviye, lastik değişimi ve daha fazlası için yanınızdayız.",
     images: [
       {
-        url: "/logos/favicon.png",
+        url: "/logos/new-logo.png",
         width: 512,
         height: 512,
         alt: "BGCAssist Logo",

@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { 
-  LayoutDashboard, 
-  Package, 
-  Wrench, 
-  FileText, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Package,
+  Wrench,
+  FileText,
+  Settings,
   LogOut,
   ChevronRight,
   Menu,
@@ -16,7 +16,9 @@ import {
   Loader2,
   Moon,
   Sun,
-  Image
+  Image,
+  Users,
+  Building2
 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,7 +29,9 @@ const menuItems = [
   { icon: Package, label: "Paketler", href: "/admin/packages" },
   { icon: Wrench, label: "Hizmetler", href: "/admin/services" },
   { icon: Image, label: "Sliderlar", href: "/admin/sliders" },
-  { icon: FileText, label: "Başvurular", href: "/admin/applications" },
+  { icon: FileText, label: "Paket Başvuruları", href: "/admin/applications" },
+  { icon: Users, label: "Bayilik Başvuruları", href: "/admin/agency-applications" },
+  { icon: Building2, label: "Tedarikçi Başvuruları", href: "/admin/supplier-applications" },
   { icon: Settings, label: "Ayarlar", href: "/admin/settings" },
 ];
 
@@ -122,8 +126,8 @@ export function AdminSidebar() {
                     prefetch={true}
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-100 min-h-[44px] touch-manipulation
-                      ${active 
-                        ? "bg-brand-red text-white" 
+                      ${active
+                        ? "bg-brand-red text-white"
                         : "text-white/70 hover:text-white hover:bg-white/5"
                       }
                     `}

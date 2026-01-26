@@ -167,3 +167,67 @@ model SliderItem {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// ============ AGENCY APPLICATIONS (Acente Başvuruları) ============
+
+model AgencyApplication {
+  id             String            @id @default(cuid())
+  
+  // Firma Bilgileri
+  companyName    String
+  taxNumber      String?
+  
+  // Yetkili Bilgileri
+  authorizedName String
+  email          String
+  phone          String
+  
+  // Adres Bilgileri
+  city           String
+  district       String
+  address        String?           @db.Text
+  
+  // Durum
+  status         ApplicationStatus @default(PENDING)
+  notes          String?           @db.Text
+  
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  
+  @@index([createdAt])
+  @@index([status])
+}
+
+// ============ SUPPLIER APPLICATIONS (Tedarikçi Başvuruları) ============
+
+model SupplierApplication {
+  id             String            @id @default(cuid())
+  
+  // Firma Bilgileri
+  companyName    String
+  serviceType    String            // OTO_KURTARMA, OTO_KIRALAMA, OTO_LASTIKCI, CILINGIR
+  
+  // Yetkili Bilgileri
+  authorizedName String
+  email          String
+  phone          String
+  
+  // Adres Bilgileri
+  city           String
+  district       String
+  address        String?           @db.Text
+  
+  // Ek Bilgiler
+  vehicleCount   Int?
+  notes          String?           @db.Text
+  
+  // Durum
+  status         ApplicationStatus @default(PENDING)
+  
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  
+  @@index([createdAt])
+  @@index([status])
+  @@index([serviceType])
+}

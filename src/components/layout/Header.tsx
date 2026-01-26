@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, Menu, X, User, AlertTriangle, Home, Wrench, Package, Info, Mail } from "lucide-react";
+import { Phone, Menu, X, User, AlertTriangle, Home, Wrench, Package, Info, Mail, ChevronDown, FileText, Users, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSettings } from "@/lib/settings-context";
 
@@ -18,15 +18,17 @@ const navLinks = [
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { settings } = useSettings();
 
   // Format phone for tel: links (remove spaces)
   const phoneLink = settings.phone.replace(/\s/g, "");
-  
+
   // Hasar İhbar Hattı phone number (hardcoded)
   const hasarIhbarPhone = "0850 242 0 155";
   const hasarIhbarLink = hasarIhbarPhone.replace(/\s/g, "");
-  
+
   // Yardım Al phone number (hardcoded)
   const yardimAlPhone = "0850 888 0 155";
   const yardimAlLink = yardimAlPhone.replace(/\s/g, "");
@@ -39,6 +41,17 @@ export function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -69,7 +82,7 @@ export function Header() {
     if (href.startsWith("#")) {
       e.preventDefault();
       const targetId = href.substring(1);
-      
+
       // If we're on the home page, scroll to the element
       if (window.location.pathname === "/") {
         const targetElement = document.getElementById(targetId);
@@ -86,11 +99,10 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-brand-black/95 backdrop-blur-md shadow-lg py-2"
-          : "bg-transparent py-4"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        ? "bg-brand-black/95 backdrop-blur-md shadow-lg py-2"
+        : "bg-transparent py-4"
+        }`}
     >
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -115,6 +127,58 @@ export function Header() {
                 </Link>
               );
             })}
+
+            {/* Başvuru Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="text-brand-white/90 hover:text-brand-red transition-colors font-medium relative group flex items-center gap-1"
+              >
+                <FileText className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                Başvuru
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-red transition-all duration-300 group-hover:w-full" />
+              </button>
+
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-0 mt-2 w-56 bg-brand-black/95 backdrop-blur-md border border-white/10 rounded-lg shadow-xl overflow-hidden"
+                  >
+                    <Link
+                      href="/acente-basvuru"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-brand-white/90 hover:text-brand-red hover:bg-white/5 transition-colors"
+                    >
+                      <Users className="w-5 h-5" />
+                      <div>
+                        <span className="font-medium block">Bayilik Başvurusu</span>
+                        <span className="text-xs text-white/50">Bayilik ağımıza katılın</span>
+                      </div>
+                    </Link>
+                    <Link
+                      href="/tedarikci-basvuru"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-brand-white/90 hover:text-brand-red hover:bg-white/5 transition-colors border-t border-white/10"
+                    >
+                      <Building2 className="w-5 h-5" />
+                      <div>
+                        <span className="font-medium block">Tedarikçi Başvurusu</span>
+                        <span className="text-xs text-white/50">Tedarikçi ağımıza katılın</span>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </nav>
 
           {/* CTA Section */}
@@ -150,7 +214,7 @@ export function Header() {
               Yardım Al
             </a>
             <Link href="https://bgcassist.sistempartner.com/Account/Login" target="_blank" rel="noopener noreferrer">
-              <Button 
+              <Button
                 className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white px-5 py-2.5 text-sm font-semibold backdrop-blur-sm cursor-pointer min-h-[44px]"
               >
                 <User className="w-4 h-4 mr-2" />
@@ -205,6 +269,39 @@ export function Header() {
                   </motion.div>
                 );
               })}
+
+              {/* Başvuru Links for Mobile */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: navLinks.length * 0.1 }}
+                className="border-b border-brand-white/10"
+              >
+                <p className="text-brand-white/50 text-sm py-2 flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Başvuru
+                </p>
+                <Link
+                  href="/acente-basvuru"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-brand-white/90 hover:text-brand-red transition-colors font-medium py-3 block flex items-center gap-3 pl-6"
+                >
+                  <Users className="w-5 h-5" />
+                  Bayilik Başvurusu
+                </Link>
+                <Link
+                  href="/tedarikci-basvuru"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-brand-white/90 hover:text-brand-red transition-colors font-medium py-3 block flex items-center gap-3 pl-6"
+                >
+                  <Building2 className="w-5 h-5" />
+                  Tedarikçi Başvurusu
+                </Link>
+              </motion.div>
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -243,7 +340,7 @@ export function Header() {
                   Yardım Al
                 </a>
                 <Link href="https://bgcassist.sistempartner.com/Account/Login" target="_blank" rel="noopener noreferrer" className="block">
-                  <Button 
+                  <Button
                     className="bg-brand-black/50 border border-brand-white/40 text-brand-white hover:bg-brand-black/70 hover:border-brand-white w-full py-6 text-lg font-semibold backdrop-blur-sm cursor-pointer"
                   >
                     <User className="w-5 h-5 mr-2" />

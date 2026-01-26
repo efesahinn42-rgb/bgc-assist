@@ -213,7 +213,7 @@ export function HeroSection() {
   return (
     <section className="relative">
       {/* Logo - Slider içine gömülü */}
-      <div className="absolute top-4 left-16 lg:top-6 lg:left-24 z-50">
+      <div className="absolute top-4 left-4 lg:top-6 lg:left-10 z-50">
         <Link href="/" className="flex items-center group">
           <div className="relative h-12 md:h-14 lg:h-16 w-auto flex items-center">
             <Image
