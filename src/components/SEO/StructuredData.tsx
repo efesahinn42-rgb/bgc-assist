@@ -31,8 +31,8 @@ export function StructuredData() {
       },
       openingHours: "Mo-Su 00:00-23:59", // 7/24 service
       priceRange: "$$",
-      image: "https://www.bgcassist.com.tr/logo.png",
-      logo: "https://www.bgcassist.com.tr/logo.png",
+      image: "https://www.bgcassist.com.tr/logos/og-logo.png",
+      logo: "https://www.bgcassist.com.tr/logos/og-logo.png",
       sameAs: [
         settings.facebook && settings.facebook,
         settings.instagram && settings.instagram,
@@ -47,7 +47,7 @@ export function StructuredData() {
       "@type": "Organization",
       name: "BGCAssist",
       url: settings.website || "https://www.bgcassist.com.tr",
-      logo: "https://www.bgcassist.com.tr/logo.png",
+      logo: "https://www.bgcassist.com.tr/logos/og-logo.png",
       contactPoint: {
         "@type": "ContactPoint",
         telephone: settings.phone,
@@ -157,13 +157,13 @@ export function StructuredData() {
     script.type = "application/ld+json";
     script.text = JSON.stringify(allSchemas);
     script.id = "structured-data";
-    
+
     // Remove existing structured data if any
     const existing = document.getElementById("structured-data");
     if (existing) {
       existing.remove();
     }
-    
+
     document.head.appendChild(script);
 
     // Cleanup
