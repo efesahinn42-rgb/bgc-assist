@@ -31,8 +31,8 @@ export function StructuredData() {
       },
       openingHours: "Mo-Su 00:00-23:59", // 7/24 service
       priceRange: "$$",
-      image: "https://www.bgcassist.com.tr/logos/og-logo.png",
-      logo: "https://www.bgcassist.com.tr/logos/og-logo.png",
+      image: "https://www.bgcassist.com.tr/logos/logo-assist.png",
+      logo: "https://www.bgcassist.com.tr/logos/logo-assist.png",
       sameAs: [
         settings.facebook && settings.facebook,
         settings.instagram && settings.instagram,
@@ -47,7 +47,7 @@ export function StructuredData() {
       "@type": "Organization",
       name: "BGCAssist",
       url: settings.website || "https://www.bgcassist.com.tr",
-      logo: "https://www.bgcassist.com.tr/logos/og-logo.png",
+      logo: "https://www.bgcassist.com.tr/logos/logo-assist.png",
       contactPoint: {
         "@type": "ContactPoint",
         telephone: settings.phone,

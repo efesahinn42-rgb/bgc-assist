@@ -224,9 +224,9 @@ export const metadata: Metadata = {
     siteName: "BGCAssist",
     images: [
       {
-        url: "/logos/og-logo.png",
-        width: 512,
-        height: 512,
+        url: "/logos/logo-assist.png",
+        width: 1364,
+        height: 390,
         alt: "BGCAssist - 7/24 Premium Yol Yardım Hizmeti",
       },
     ],
@@ -237,9 +237,9 @@ export const metadata: Metadata = {
     description: "Konya ve Türkiye genelinde 7/24 yol yardım hizmeti. Çekici, akü takviye, lastik değişimi ve daha fazlası için yanınızdayız.",
     images: [
       {
-        url: "/logos/og-logo.png",
-        width: 512,
-        height: 512,
+        url: "/logos/logo-assist.png",
+        width: 1364,
+        height: 390,
         alt: "BGCAssist Logo",
       },
     ],
